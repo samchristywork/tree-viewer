@@ -6,11 +6,46 @@ import java.util.Optional;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
 class Event {
-  public static void keyPressHandler(KeyEvent key, App app) {
-    switch (key.getCode()) {
+  public static final Object[][] keyMap = {
+      { "ENTER", "Change the root of the tree to the selected node" },
+      { "ADD", "Zoom in" },
+      { "SUBTRACT", "Zoom out" },
+      { "N", "Add a new node" },
+      { "R", "Rename the selected node" },
+      { "U", "Show usage" },
+      { "S", "Save the tree" },
+      { "Q", "Quit" },
+      { "ESCAPE", "Quit" },
+      { "P", "Insert a new node" },
+      { "H", "Move left" },
+      { "J", "Move down" },
+      { "K", "Move up" },
+      { "L", "Move right" },
+      { "SPACE", "Go to the root node" },
+  };
+
+  public static void usage() {
+    Alert alert = new Alert(AlertType.INFORMATION);
+    alert.setTitle("Help");
+    alert.setHeaderText("Tasker");
+
+    String content = "";
+    for (Object[] key : keyMap) {
+      content += key[0] + ": " + key[1] + "\n";
+    }
+    alert.setContentText(content);
+
+    alert.showAndWait();
+  }
+
+  public static void keyPressHandler(App app, KeyEvent key) {
+    KeyCode code = key.getCode();
+
+    switch (code) {
       case ENTER:
         app.tree.current = app.selectedNode;
         app.render();
@@ -30,7 +65,7 @@ class Event {
         app.selectedNode.rename(app);
         break;
       case U:
-        app.usage();
+        usage();
         break;
       case S:
         try {
