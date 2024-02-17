@@ -12,6 +12,8 @@ class Tree {
   public Node root = new Node("root", null);
   public Node current = root;
 
+  public void sort() { root.sort(); }
+
   public void serialize(String filename) throws IOException {
     BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
     for (Node child : root.children) {
@@ -45,7 +47,7 @@ class Tree {
       String parts[] = line.split("#");
       String fqnn = parts[0];
 
-      HashMap<String, String> attributes = null;
+      HashMap<String, String> attributes = new HashMap<String, String>();
 
       if (parts.length == 2) {
         attributes = new HashMap<String, String>();
@@ -53,7 +55,6 @@ class Tree {
         for (String attribute : attribs) {
           String[] kv = attribute.split("=");
           attributes.put(kv[0], kv[1]);
-          System.out.println(kv[0] + "->" + kv[1]);
         }
       }
 
@@ -64,11 +65,9 @@ class Tree {
         Node child = n.findChild(field);
         if (child == null) {
           Node c = n.addChild(field);
-          if (attributes != null) {
-            c.attributes = attributes;
-          }
+          c.attributes = attributes;
         } else {
-          if (i == fields.length - 1 && attributes != null) {
+          if (i == fields.length - 1) {
             child.attributes = attributes;
           }
         }

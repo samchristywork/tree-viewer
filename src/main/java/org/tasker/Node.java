@@ -14,7 +14,7 @@ class Node {
   String label;
   ArrayList<Node> children = new ArrayList<Node>();
   Node parent;
-  HashMap<String, String> attributes;
+  HashMap<String, String> attributes = new HashMap<String, String>();
   boolean collapsed = false;
 
   Node(String label, Node parent) {
@@ -22,8 +22,24 @@ class Node {
     this.parent = parent;
   }
 
-  Node(String label) {
-    this.label = label;
+  Node(String label) { this.label = label; }
+
+  public void sort() {
+    Collections.sort(children, (a, b) -> {
+      boolean aDone = a.attributes.containsKey("status") &&
+                      a.attributes.get("status").equals("done");
+      boolean bDone = b.attributes.containsKey("status") &&
+                      b.attributes.get("status").equals("done");
+      if (aDone && !bDone) {
+        return 1;
+      } else if (!aDone && bDone) {
+        return -1;
+      }
+      return a.label.compareTo(b.label);
+    });
+    for (Node child : children) {
+      child.sort();
+    }
   }
 
   private String fullyQualifiedName() {
@@ -37,8 +53,6 @@ class Node {
   public Node addChild(String label) {
     Node child = new Node(label, this);
     children.add(child);
-
-    Collections.sort(children, (a, b) -> a.label.compareTo(b.label));
 
     return child;
   }
@@ -106,6 +120,7 @@ class Node {
             @Override
             public void run() {
               label = name;
+
               app.modified = true;
               app.render();
             }
@@ -119,7 +134,7 @@ class Node {
     Text text = new Text(n.label);
     text.setFont(app.gc.getFont());
     Vec2 extents = new Vec2(text.getLayoutBounds().getWidth(),
-        text.getLayoutBounds().getHeight());
+                            text.getLayoutBounds().getHeight());
 
     Rect r = new Rect(
         offset.x - app.padding.x, offset.y * app.lineHeight - app.padding.y,
@@ -127,13 +142,14 @@ class Node {
 
     if (n == app.selectedNode) {
       Draw.rect(app, r, Color.BLACK, Color.LIGHTGREEN);
-    } else if (n.attributes != null && n.attributes.containsKey("foo")) {
-      Draw.rect(app, r, Color.RED, Color.RED);
+    } else if (n.attributes.containsKey("status") &&
+               n.attributes.get("status").equals("done")) {
+      Draw.rect(app, r, Color.GREEN, Color.WHITE);
     } else {
       Draw.rect(app, r, Color.BLACK, Color.WHITE);
     }
     if (r.contains(new Vec2(app.mouse.x - app.globalOffset.x,
-        app.mouse.y - app.globalOffset.y))) {
+                            app.mouse.y - app.globalOffset.y))) {
       Draw.rect(app, r, Color.BLACK, Color.LIGHTGRAY);
 
       if (app.lmbClicked) {
@@ -147,7 +163,7 @@ class Node {
     }
 
     Draw.text(app, label,
-        new Vec2(offset.x, offset.y * app.lineHeight + 3 * extents.y / 4),
-        Color.BLACK);
+              new Vec2(offset.x, offset.y * app.lineHeight + 3 * extents.y / 4),
+              Color.BLACK);
   }
 }
