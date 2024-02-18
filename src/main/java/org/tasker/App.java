@@ -129,13 +129,35 @@ public class App extends Application {
       return;
     }
 
-    n.draw(this, n, offset);
+    if (targetNode == null) {
+      return;
+    }
 
-    return new Vec2(width + maxSubtreeWidth, height);
+    if (targetNode == nodeToReparent) {
+      targetNode = null;
+      nodeToReparent = null;
+      return;
+    }
+
+    if (targetNode.isAncestor(nodeToReparent)) {
+      targetNode = null;
+      nodeToReparent = null;
+      return;
+    }
+
+    Node parent = nodeToReparent.parent;
+    parent.children.remove(nodeToReparent);
+    targetNode.children.add(nodeToReparent);
+    nodeToReparent.parent = targetNode;
+
+    modified = true;
+    nodeToReparent = null;
+    targetNode = null;
   }
 
   public void render() {
-    gc.clearRect(0, 0, dimensions.x, dimensions.y);
+    gc.setFont(Font.font("Arial", 12 * size));
+    handleReparent();
 
     // Calculate layout
     Node n = tree.current;
@@ -159,8 +181,10 @@ public class App extends Application {
     Grid.renderGrid(this, new Vec2(100, 100), new Vec2(100, 100),
         colorScheme.gridColor2);
 
-    Node n = tree.current;
-    renderSubtree(n, new Vec2(0, 0));
+    // Render subtree
+    jumpModeIndex = 100;
+    tree.sort();
+    renderSubtree(n);
     lmbClicked = false;
     rmbClicked = false;
 
@@ -172,6 +196,22 @@ public class App extends Application {
     if (modified) {
       gc.fillText("modified", 10, 10 + fontSize);
     }
+
+    gc.fillText("" + jumpModeSelection, 10, 10 + fontSize * 2);
+  }
+
+  private String[] readLinesFromFile(String filename) {
+    String[] lines = new String[0];
+    try {
+      Path path = Paths.get(filename);
+      if (!Files.exists(path)) {
+        Files.createFile(path);
+      }
+      lines = Files.readAllLines(path).toArray(new String[0]);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return lines;
   }
 
   @Override
@@ -206,14 +246,52 @@ public class App extends Application {
     lightColorScheme.textColor = Color.BLACK;
 
     tree.readFromFile("save.tree");
-    selectedNode = tree.current;
+
+    String lines[] = readLinesFromFile("datastore");
+
+    for (String line : lines) {
+      String[] parts = line.split("=");
+      if (parts.length == 2) {
+        switch (parts[0]) {
+          case "darkMode":
+            darkMode = Boolean.parseBoolean(parts[1]);
+            break;
+          case "showDone":
+            showDone = Boolean.parseBoolean(parts[1]);
+            break;
+          case "selectedNodeFQNN":
+            selectedNode = tree.findNode(parts[1]);
+            break;
+          case "globalOffsetX":
+            globalOffset.x = Double.parseDouble(parts[1]);
+            break;
+          case "globalOffsetY":
+            globalOffset.y = Double.parseDouble(parts[1]);
+            break;
+        }
+      }
+    }
+
+    if (selectedNode == null) {
+      selectedNode = tree.root;
+    }
 
     Canvas canvas = new Canvas(dimensions.x, dimensions.y);
+    Scene scene = new Scene(new StackPane(canvas), dimensions.x, dimensions.y);
+    stage.setTitle("Tasker");
     gc = canvas.getGraphicsContext2D();
 
-    Scene scene = new Scene(new StackPane(canvas), dimensions.x, dimensions.y);
+    scene.widthProperty().addListener((obs, oldVal, newVal) -> {
+      dimensions.x = (double) newVal;
+      canvas.setWidth(dimensions.x);
+      render();
+    });
 
-    stage.setTitle("Tasker");
+    scene.heightProperty().addListener((obs, oldVal, newVal) -> {
+      dimensions.y = (double) newVal;
+      canvas.setHeight(dimensions.y);
+      render();
+    });
 
     scene.addEventHandler(KeyEvent.KEY_PRESSED,
         (key) -> {
