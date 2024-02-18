@@ -1,5 +1,7 @@
 package org.tasker;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -28,7 +30,9 @@ class Event {
       { "Q", "Quit" },
       { "R", "Rename the selected node" },
       { "S", "Save the tree" },
+      { "T", "Test for data integrity" },
       { "U", "Show usage" },
+      { "Z", "Center the view on the selected node" },
   };
 
   public static void usage() {
@@ -48,9 +52,20 @@ class Event {
   public static void keyPressHandler(App app, KeyEvent key) {
     KeyCode code = key.getCode();
 
+    if (code.isDigitKey()) {
+      app.jumpModeSelection *= 10;
+      app.jumpModeSelection += code.ordinal() - 24;
+      app.render();
+      return;
+    }
+
     switch (code) {
       case ADD:
         app.size *= 1.1;
+        app.render();
+        break;
+      case BACK_SPACE:
+        app.jumpModeSelection /= 10;
         app.render();
         break;
       case ENTER:
@@ -71,6 +86,10 @@ class Event {
         break;
       case D:
         app.darkMode = !app.darkMode;
+        app.render();
+        break;
+      case F:
+        app.jumpMode = !app.jumpMode;
         app.render();
         break;
       case H:
@@ -112,10 +131,10 @@ class Event {
         app.render();
         break;
       case M:
-        if (app.selectedNode.attributes.get("status") == null) {
-          app.selectedNode.attributes.put("status", "done");
-        } else if (app.selectedNode.attributes.get("status").equals("done")) {
-          app.selectedNode.attributes.remove("status");
+        if (app.selectedNode.checkAttr("status", "done")) {
+          app.selectedNode.removeAttr("status");
+        } else {
+          app.selectedNode.putAttr("status", "done");
         }
 
         app.modified = true;
@@ -143,11 +162,36 @@ class Event {
         }
         app.render();
         break;
+      case T:
+        app.tree.test();
+        break;
       case U:
         usage();
         break;
+      case Z:
+        app.globalOffset.x = -app.selectedNode.r.x;
+        app.globalOffset.y = -app.selectedNode.r.y;
+        app.globalOffset.x += app.dimensions.x / 2;
+        app.globalOffset.y += app.dimensions.y / 2;
+        app.globalOffset.x -= app.selectedNode.r.w / 2;
+        app.globalOffset.y -= app.selectedNode.r.h / 2;
+        app.render();
+        break;
       case Q:
       case ESCAPE:
+        try {
+          BufferedWriter writer = new BufferedWriter(new FileWriter("datastore"));
+          String fqnn = app.selectedNode.fullyQualifiedName();
+          writer.write("darkMode=" + app.darkMode + "\n");
+          writer.write("showDone=" + app.showDone + "\n");
+          writer.write("selectedNodeFQNN=" + fqnn + "\n");
+          writer.write("globalOffsetX=" + app.globalOffset.x + "\n");
+          writer.write("globalOffsetY=" + app.globalOffset.y + "\n");
+          writer.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+
         if (app.modified) {
           Alert alert = new Alert(AlertType.CONFIRMATION,
               "You have unsaved work. Quit anyway?",
