@@ -8,46 +8,65 @@ import java.util.HashMap;
 import javafx.application.Platform;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
+import javafx.scene.text.Font;
 
 class Node {
-  String label;
   ArrayList<Node> children = new ArrayList<Node>();
   Node parent;
-  HashMap<String, String> attributes = new HashMap<String, String>();
+  Rect r = new Rect(0, 0, 0, 0); // TODO: Rename this
+  String label;
+  Vec2 extents = new Vec2(0, 0);
+  Vec2 leftNode;
+  Vec2 offset = new Vec2(0, 0);
+  Vec2 rightNode;
   boolean collapsed = false;
+  boolean rightClicked = false;
+  double height = 0;
+  double width = 0;
+  private HashMap<String, String> attributes = new HashMap<String, String>();
 
   Node(String label, Node parent) {
     this.label = label;
     this.parent = parent;
   }
 
-  Node(String label) { this.label = label; }
+  Node(String label) {
+    this.label = label;
+  }
 
   public void sort() {
     Collections.sort(children, (a, b) -> {
-      boolean aDone = a.attributes.containsKey("status") &&
-                      a.attributes.get("status").equals("done");
-      boolean bDone = b.attributes.containsKey("status") &&
-                      b.attributes.get("status").equals("done");
+      boolean aDone = a.checkAttr("status", "done");
+      boolean bDone = b.checkAttr("status", "done");
+
       if (aDone && !bDone) {
         return 1;
       } else if (!aDone && bDone) {
         return -1;
       }
+
       return a.label.compareTo(b.label);
     });
+
     for (Node child : children) {
       child.sort();
     }
   }
 
-  private String fullyQualifiedName() {
+  public boolean checkAttr(String key, String value) {
+    return attributes.containsKey(key) && attributes.get(key).equals(value);
+  }
+
+  public String fullyQualifiedName() {
     if (parent.parent == null) {
       return label;
     } else {
       return parent.fullyQualifiedName() + "	" + label;
     }
+  }
+
+  public void setAttributes(HashMap<String, String> attributes) {
+    this.attributes = attributes;
   }
 
   public Node addChild(String label) {
@@ -73,13 +92,26 @@ class Node {
     children.add(n);
     this.label = label;
 
-    Collections.sort(children, (a, b) -> a.label.compareTo(b.label));
+    for (Node child : n.children) {
+      child.parent = n;
+    }
 
     return n;
   }
 
+  public void putAttr(String key, String value) {
+    attributes.put(key, value);
+  }
+
+  public void removeAttr(String key) {
+    attributes.remove(key);
+  }
+
   public void serialize(BufferedWriter writer) throws IOException {
     writer.write(fullyQualifiedName());
+    for (String key : attributes.keySet()) {
+      writer.write("#" + key + "=" + attributes.get(key) + ";");
+    }
     writer.write("\n");
 
     for (Node child : children) {
