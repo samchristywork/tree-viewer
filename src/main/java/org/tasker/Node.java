@@ -162,30 +162,38 @@ class Node {
     });
   }
 
-  public void draw(App app, Node n, Vec2 offset) {
-    Text text = new Text(n.label);
-    text.setFont(app.gc.getFont());
-    Vec2 extents = new Vec2(text.getLayoutBounds().getWidth(),
-                            text.getLayoutBounds().getHeight());
+  public boolean isDescendant(Node node) {
+    if (this == node) {
+      return true;
+    }
+    for (Node child : children) {
+      if (child.isDescendant(node)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
-    Rect r = new Rect(
-        offset.x - app.padding.x, offset.y * app.lineHeight - app.padding.y,
-        extents.x + app.padding.x * 2, extents.y + app.padding.y * 2);
+  public boolean isAncestor(Node node) {
+    if (parent == node) {
+      return true;
+    }
+    if (parent == null) {
+      return false;
+    }
+    return parent.isAncestor(node);
+  }
 
-    if (n == app.selectedNode) {
-      Draw.rect(app, r, Color.BLACK, Color.LIGHTGREEN);
-    } else if (n.attributes.containsKey("status") &&
-               n.attributes.get("status").equals("done")) {
-      Draw.rect(app, r, Color.GREEN, Color.WHITE);
-    } else {
-      Draw.rect(app, r, Color.BLACK, Color.WHITE);
+  // TODO: Inefficient
+  public Node findNode(String fqnn) {
+    if (fullyQualifiedName().equals(fqnn)) {
+      return this;
     }
     if (r.contains(new Vec2(app.mouse.x - app.globalOffset.x,
                             app.mouse.y - app.globalOffset.y))) {
       Draw.rect(app, r, Color.BLACK, Color.LIGHTGRAY);
 
       if (app.lmbClicked) {
-        System.out.println(n.label);
         app.selectedNode = n;
       }
 
