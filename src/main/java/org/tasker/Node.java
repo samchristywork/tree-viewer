@@ -30,7 +30,9 @@ class Node {
     this.parent = parent;
   }
 
-  Node(String label) { this.label = label; }
+  Node(String label) {
+    this.label = label;
+  }
 
   public void sort() {
     Collections.sort(children, (a, b) -> {
@@ -97,20 +99,27 @@ class Node {
     return n;
   }
 
-  public void putAttr(String key, String value) { attributes.put(key, value); }
+  public void putAttr(String key, String value) {
+    attributes.put(key, value);
+  }
 
-  public void removeAttr(String key) { attributes.remove(key); }
+  public void removeAttr(String key) {
+    attributes.remove(key);
+  }
 
-  public void serialize(BufferedWriter writer) throws IOException {
-    writer.write(fullyQualifiedName());
+  public String serialize() {
+    String s = fullyQualifiedName();
+
     for (String key : attributes.keySet()) {
-      writer.write("#" + key + "=" + attributes.get(key) + ";");
+      s += "#" + key + "=" + attributes.get(key) + ";";
     }
-    writer.write("\n");
+    s += "\n";
 
     for (Node child : children) {
-      child.serialize(writer);
+      s += child.serialize();
     }
+
+    return s;
   }
 
   public void addNode(App app) {
@@ -182,15 +191,15 @@ class Node {
 
   private void drawText(App app, Vec2 offset, Vec2 extents) {
     Draw.text(app, label,
-              new Vec2(offset.x, offset.y * app.lineHeight + 3 * extents.y / 4),
-              app.colorScheme.textColor);
+        new Vec2(offset.x, offset.y * app.lineHeight + 3 * extents.y / 4),
+        app.colorScheme.textColor);
   }
 
   private void drawRect(App app, Node n, Vec2 offset, Vec2 extents, Rect r) {
     if (r.contains(new Vec2(app.mouse.x - app.globalOffset.x,
-                            app.mouse.y - app.globalOffset.y))) {
+        app.mouse.y - app.globalOffset.y))) {
       Draw.rect(app, r, app.colorScheme.nodeBorderColor,
-                app.colorScheme.nodeHoverColor);
+          app.colorScheme.nodeHoverColor);
 
       if (app.lmbClicked) {
         app.selectedNode = n;
@@ -206,22 +215,26 @@ class Node {
       }
     } else if (n == app.nodeToReparent) {
       Draw.rect(app, r, app.colorScheme.nodeBorderColor,
-                app.colorScheme.nodeReparentColor);
+          app.colorScheme.nodeReparentColor);
     } else if (n == app.selectedNode) {
       Draw.rect(app, r, app.colorScheme.nodeBorderColor,
-                app.colorScheme.nodeSelectedColor);
+          app.colorScheme.nodeSelectedColor);
     } else if (n.checkAttr("status", "done")) {
       Draw.rect(app, r, app.colorScheme.nodeBorderColor,
-                app.colorScheme.nodeCompletedColor);
+          app.colorScheme.nodeCompletedColor);
     } else {
       Draw.rect(app, r, app.colorScheme.nodeBorderColor,
-                app.colorScheme.nodeBackgroundColor);
+          app.colorScheme.nodeBackgroundColor);
     }
   }
 
-  public Vec2 getRightNode() { return new Vec2(r.x + r.w, r.y + r.h / 2); }
+  public Vec2 getRightNode() {
+    return new Vec2(r.x + r.w, r.y + r.h / 2);
+  }
 
-  public Vec2 getLeftNode() { return new Vec2(r.x, r.y + r.h / 2); }
+  public Vec2 getLeftNode() {
+    return new Vec2(r.x, r.y + r.h / 2);
+  }
 
   public Rect getSubtreeRect() {
     double x = r.x;
@@ -265,8 +278,8 @@ class Node {
       String s = "" + app.jumpModeIndex;
       app.jumpModeIndex++;
       Vec2 p = new Vec2(offset.x - app.padding.x + 2,
-                        offset.y * app.lineHeight + extents.y / 2 -
-                            app.padding.y + 2);
+          offset.y * app.lineHeight + extents.y / 2 -
+              app.padding.y + 2);
       Color c = app.colorScheme.jumpTextColor;
       Draw.text(app, s, p, c);
       app.gc.setFont(Font.font("Arial", 12 * app.size));

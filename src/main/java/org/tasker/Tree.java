@@ -12,19 +12,30 @@ class Tree {
   public Node root = new Node("root", null);
   public Node current = root;
 
-  public void sort() { root.sort(); }
-
-  public void serialize(String filename) throws IOException {
-    BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
-    for (Node child : root.children) {
-      child.serialize(writer);
-    }
-    writer.close();
+  public void sort() {
+    root.sort();
   }
 
-  public void serialize(String filename, String backup) throws IOException {
-    serialize(backup);
-    serialize(filename);
+  public void writeToFile(String filename, String backup) throws IOException {
+    {
+      BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
+      writer.write(serialize());
+      writer.close();
+    }
+
+    {
+      BufferedWriter writer = new BufferedWriter(new FileWriter(backup));
+      writer.write(serialize());
+      writer.close();
+    }
+  }
+
+  public String serialize() {
+    String s = "";
+    for (Node child : root.children) {
+      s += child.serialize();
+    }
+    return s;
   }
 
   private String[] readLinesFromFile(String filename) {

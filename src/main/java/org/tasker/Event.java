@@ -155,7 +155,7 @@ class Event {
       case S:
         try {
           String dateTime = LocalDateTime.now().toString();
-          app.tree.serialize("save.tree", "backups/" + dateTime + ".tree");
+          app.tree.writeToFile("save.tree", "backups/" + dateTime + ".tree");
           app.modified = false;
         } catch (IOException e) {
           e.printStackTrace();
