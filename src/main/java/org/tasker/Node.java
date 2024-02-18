@@ -30,9 +30,7 @@ class Node {
     this.parent = parent;
   }
 
-  Node(String label) {
-    this.label = label;
-  }
+  Node(String label) { this.label = label; }
 
   public void sort() {
     Collections.sort(children, (a, b) -> {
@@ -99,13 +97,9 @@ class Node {
     return n;
   }
 
-  public void putAttr(String key, String value) {
-    attributes.put(key, value);
-  }
+  public void putAttr(String key, String value) { attributes.put(key, value); }
 
-  public void removeAttr(String key) {
-    attributes.remove(key);
-  }
+  public void removeAttr(String key) { attributes.remove(key); }
 
   public void serialize(BufferedWriter writer) throws IOException {
     writer.write(fullyQualifiedName());
@@ -162,18 +156,6 @@ class Node {
     });
   }
 
-  public boolean isDescendant(Node node) {
-    if (this == node) {
-      return true;
-    }
-    for (Node child : children) {
-      if (child.isDescendant(node)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   public boolean isAncestor(Node node) {
     if (parent == node) {
       return true;
@@ -189,21 +171,105 @@ class Node {
     if (fullyQualifiedName().equals(fqnn)) {
       return this;
     }
+    for (Node child : children) {
+      Node n = child.findNode(fqnn);
+      if (n != null) {
+        return n;
+      }
+    }
+    return null;
+  }
+
+  private void drawText(App app, Vec2 offset, Vec2 extents) {
+    Draw.text(app, label,
+              new Vec2(offset.x, offset.y * app.lineHeight + 3 * extents.y / 4),
+              app.colorScheme.textColor);
+  }
+
+  private void drawRect(App app, Node n, Vec2 offset, Vec2 extents, Rect r) {
     if (r.contains(new Vec2(app.mouse.x - app.globalOffset.x,
                             app.mouse.y - app.globalOffset.y))) {
-      Draw.rect(app, r, Color.BLACK, Color.LIGHTGRAY);
+      Draw.rect(app, r, app.colorScheme.nodeBorderColor,
+                app.colorScheme.nodeHoverColor);
 
       if (app.lmbClicked) {
         app.selectedNode = n;
       }
 
       if (app.rmbClicked) {
-        addNode(app);
+        app.rmbClicked = false;
+        if (app.nodeToReparent == null) {
+          app.nodeToReparent = n;
+        } else {
+          app.targetNode = n;
+        }
+      }
+    } else if (n == app.nodeToReparent) {
+      Draw.rect(app, r, app.colorScheme.nodeBorderColor,
+                app.colorScheme.nodeReparentColor);
+    } else if (n == app.selectedNode) {
+      Draw.rect(app, r, app.colorScheme.nodeBorderColor,
+                app.colorScheme.nodeSelectedColor);
+    } else if (n.checkAttr("status", "done")) {
+      Draw.rect(app, r, app.colorScheme.nodeBorderColor,
+                app.colorScheme.nodeCompletedColor);
+    } else {
+      Draw.rect(app, r, app.colorScheme.nodeBorderColor,
+                app.colorScheme.nodeBackgroundColor);
+    }
+  }
+
+  public Vec2 getRightNode() { return new Vec2(r.x + r.w, r.y + r.h / 2); }
+
+  public Vec2 getLeftNode() { return new Vec2(r.x, r.y + r.h / 2); }
+
+  public Rect getSubtreeRect() {
+    double x = r.x;
+    double y = r.y;
+    double w = r.w;
+    double h = r.h;
+
+    for (Node child : children) {
+      Rect r = child.getSubtreeRect();
+      if (r.x < x) {
+        x = r.x;
+      }
+      if (r.y < y) {
+        y = r.y;
+      }
+      if (r.x + r.w > x + w) {
+        w = r.x + r.w - x;
+      }
+      if (r.y + r.h > y + h) {
+        h = r.y + r.h - y;
       }
     }
 
-    Draw.text(app, label,
-              new Vec2(offset.x, offset.y * app.lineHeight + 3 * extents.y / 4),
-              Color.BLACK);
+    return new Rect(x, y, w, h);
+  }
+
+  public void draw(App app) {
+    if (app.jumpMode) {
+      if (app.jumpModeSelection == app.jumpModeIndex) {
+        app.selectedNode = this;
+        app.jumpModeSelection = 0;
+        app.jumpMode = false;
+      }
+    }
+
+    drawRect(app, this, offset, extents, r);
+    drawText(app, offset, extents);
+
+    if (app.jumpMode) {
+      app.gc.setFont(Font.font("Arial", 9 * app.size));
+      String s = "" + app.jumpModeIndex;
+      app.jumpModeIndex++;
+      Vec2 p = new Vec2(offset.x - app.padding.x + 2,
+                        offset.y * app.lineHeight + extents.y / 2 -
+                            app.padding.y + 2);
+      Color c = app.colorScheme.jumpTextColor;
+      Draw.text(app, s, p, c);
+      app.gc.setFont(Font.font("Arial", 12 * app.size));
+    }
   }
 }
