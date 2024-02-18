@@ -49,6 +49,7 @@ class Tree {
 
       HashMap<String, String> attributes = new HashMap<String, String>();
 
+      // Parse attributes
       if (parts.length == 2) {
         attributes = new HashMap<String, String>();
         String[] attribs = parts[1].split(";");
@@ -58,6 +59,7 @@ class Tree {
         }
       }
 
+      // Parse fully qualified node name
       String[] fields = fqnn.split("	");
 
       for (int i = 0; i < fields.length; i++) {
@@ -65,14 +67,40 @@ class Tree {
         Node child = n.findChild(field);
         if (child == null) {
           Node c = n.addChild(field);
-          c.attributes = attributes;
+          c.setAttributes(attributes);
         } else {
           if (i == fields.length - 1) {
-            child.attributes = attributes;
+            child.setAttributes(attributes);
           }
         }
         n = child;
       }
     }
+  }
+
+  public Node findNode(String fqnn) {
+    for (Node child : root.children) {
+      Node n = child.findNode(fqnn);
+      if (n != null) {
+        return n;
+      }
+    }
+
+    return null;
+  }
+
+  private void test(Node n) {
+    for (Node child : n.children) {
+      if (child.parent != n) {
+        System.out.println("Parent of " + child.label + " is not " + n.label);
+      }
+      test(child);
+    }
+  }
+
+  public void test() {
+    Node n = root;
+    System.out.println("Testing tree");
+    test(n);
   }
 }
