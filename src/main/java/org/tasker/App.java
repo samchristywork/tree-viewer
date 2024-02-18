@@ -37,57 +37,96 @@ public class App extends Application {
   ColorScheme darkColorScheme = new ColorScheme();
   ColorScheme lightColorScheme = new ColorScheme();
   GraphicsContext gc;
+  Node nodeToReparent = null;
   Node selectedNode = null;
+  Node targetNode = null;
   Tree tree = new Tree();
   Vec2 dimensions = new Vec2(1600, 800);
-  Vec2 globalOffset = new Vec2(100, 100);
+  Vec2 globalOffset = new Vec2(0, 0);
   Vec2 mouse = new Vec2(0, 0);
   Vec2 padding = new Vec2(10, 6);
+  boolean darkMode = false;
+  boolean jumpMode = false;
   boolean lmbClicked = false;
   boolean modified = false;
   boolean rmbClicked = false;
+  boolean showDone = false;
   double lineHeight = 40;
   double size = 1;
+  int jumpModeIndex;
+  int jumpModeSelection = 0;
 
-  private Vec2 renderSubtree(Node n, Vec2 offset) {
-    double height = 0;
+  private double calculateLayout(Node n) {
+    return calculateLayout(n, new Vec2(0, 0));
+  }
 
+  private double calculateLayout(Node n, Vec2 offset) {
     Text text = new Text(n.label);
     text.setFont(gc.getFont());
-    Vec2 extents = new Vec2(text.getLayoutBounds().getWidth(),
-        text.getLayoutBounds().getHeight());
+    n.extents.x = text.getLayoutBounds().getWidth();
+    n.extents.y = text.getLayoutBounds().getHeight();
 
-    double width = extents.x + padding.x * 2 + 30;
+    double height = 0;
+    double width = n.extents.x + padding.x * 2 + 30;
 
-    Rect r = new Rect(offset.x - padding.x, offset.y * lineHeight - padding.y,
-        extents.x + padding.x * 2, extents.y + padding.y * 2);
+    n.r.x = offset.x - padding.x;
+    n.r.y = offset.y * lineHeight - padding.y;
+    n.r.w = n.extents.x + padding.x * 2;
+    n.r.h = n.extents.y + padding.y * 2;
 
-    double maxSubtreeWidth = 0;
     if (n.children.size() == 0) {
       height = 1;
     } else {
       for (Node child : n.children) {
-        Vec2 a = new Vec2(offset.x + extents.x + padding.x,
-            offset.y * lineHeight + extents.y / 2);
-        Vec2 b = new Vec2((offset.x + width) - padding.x,
-            (offset.y + height) * lineHeight + extents.y / 2);
-        Draw.bezier(this, a, new Vec2((a.x + b.x) / 2, a.y),
-            new Vec2((a.x + b.x) / 2, b.y), b, Color.BLACK);
+        if (!showDone && child.checkAttr("status", "done")) {
+          continue;
+        }
 
-        Vec2 e = renderSubtree(child, new Vec2(offset.x + width, offset.y + height));
-        height += e.y;
-        maxSubtreeWidth = Math.max(maxSubtreeWidth, e.x);
+        Vec2 o = new Vec2(offset.x + width, offset.y + height);
+        height += calculateLayout(child, o);
       }
     }
 
-    if (n == selectedNode || n.label.equals("org")) {
-      int foo = 5;
-      Draw.rect(this,
-          new Rect(r.x - foo, r.y - foo,
-              maxSubtreeWidth + width - 30 + foo * 2,
-              (height - 1) * lineHeight + extents.y + padding.y * 2 +
-                  foo * 2),
-          Color.GREY, Color.TRANSPARENT);
+    n.offset.x = offset.x;
+    n.offset.y = offset.y;
+
+    return height;
+  }
+
+  private void renderSubtree(Node n) {
+    Text text = new Text(n.label);
+    text.setFont(gc.getFont());
+
+    if (n == selectedNode || n.checkAttr("border", "true")) {
+      Rect r = n.getSubtreeRect();
+      r.x -= padding.x;
+      r.y -= padding.y;
+      r.w += padding.x * 2;
+      r.h += padding.y * 2;
+      Draw.rect(this, r, colorScheme.borderColor, Color.TRANSPARENT);
+    }
+
+    if (n.children.size() != 0) {
+      for (Node child : n.children) {
+        if (!showDone && child.checkAttr("status", "done")) {
+          continue;
+        }
+
+        Vec2 a = n.getRightNode();
+        Vec2 b = child.getLeftNode();
+        Draw.bezier(this, a, new Vec2((a.x + b.x) / 2, a.y),
+            new Vec2((a.x + b.x) / 2, b.y), b, colorScheme.bezierColor);
+
+        renderSubtree(child);
+      }
+    }
+
+    n.draw(this);
+  }
+
+  private void handleReparent() {
+    if (nodeToReparent == null) {
+      return;
     }
 
     n.draw(this, n, offset);
