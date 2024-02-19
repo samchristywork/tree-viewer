@@ -6,28 +6,45 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 class Tree {
   public Node root = new Node("root", null);
   public Node current = root;
+  String state = "";
 
-  public void sort() {
-    root.sort();
+  public void sort() { root.sort(); }
+
+  public boolean isModified() {
+    if (serialize().equals(state)) {
+      return false;
+    }
+
+    return true;
   }
 
   public void writeToFile(String filename, String backup) throws IOException {
+    String s = serialize();
+
     {
       BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
-      writer.write(serialize());
+      writer.write(s);
       writer.close();
     }
 
     {
       BufferedWriter writer = new BufferedWriter(new FileWriter(backup));
-      writer.write(serialize());
+      writer.write(s);
       writer.close();
     }
+
+    state = s;
+  }
+
+  public String[] getFQNNs() {
+    ArrayList<String> fqnns = root.getFQNNs();
+    return fqnns.toArray(new String[0]);
   }
 
   public String serialize() {
@@ -87,11 +104,14 @@ class Tree {
         n = child;
       }
     }
+
+    state = serialize();
   }
 
   public Node findNode(String fqnn) {
+    String fqnnParts[] = fqnn.split("	");
     for (Node child : root.children) {
-      Node n = child.findNode(fqnn);
+      Node n = child.findNode(fqnnParts);
       if (n != null) {
         return n;
       }
