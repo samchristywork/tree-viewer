@@ -31,21 +31,19 @@ public class App extends Application {
   Vec2 mouse = new Vec2(0, 0);
   Vec2 padding = new Vec2(10, 6);
   boolean darkMode = false;
-  boolean jumpMode = false;
   boolean lmbClicked = false;
-  boolean modified = false;
   boolean rmbClicked = false;
   boolean showDone = false;
   double lineHeight = 40;
   double size = 1;
-  int jumpModeIndex;
-  int jumpModeSelection = 0;
 
   private double calculateLayout(Node n) {
     return calculateLayout(n, new Vec2(0, 0));
   }
 
   private double calculateLayout(Node n, Vec2 offset) {
+    n.show = true;
+
     Text text = new Text(n.label);
     text.setFont(gc.getFont());
     n.extents.x = text.getLayoutBounds().getWidth();
@@ -54,8 +52,8 @@ public class App extends Application {
     double height = 0;
     double width = n.extents.x + padding.x * 2 + 30;
 
-    n.r.x = offset.x - padding.x;
-    n.r.y = offset.y * lineHeight - padding.y;
+    n.r.x = offset.x;
+    n.r.y = offset.y * lineHeight;
     n.r.w = n.extents.x + padding.x * 2;
     n.r.h = n.extents.y + padding.y * 2;
 
@@ -64,16 +62,20 @@ public class App extends Application {
     } else {
       for (Node child : n.children) {
         if (!showDone && child.checkAttr("status", "done")) {
+          child.show = false;
           continue;
+        } else if (!child.isAncestor(tree.current) &&
+            !tree.current.isAncestor(child) && tree.current != child) {
+          child.show = false;
+          continue;
+        } else {
+          child.show = true;
         }
 
         Vec2 o = new Vec2(offset.x + width, offset.y + height);
         height += calculateLayout(child, o);
       }
     }
-
-    n.offset.x = offset.x;
-    n.offset.y = offset.y;
 
     return height;
   }
@@ -88,19 +90,20 @@ public class App extends Application {
       r.y -= padding.y;
       r.w += padding.x * 2;
       r.h += padding.y * 2;
-      Draw.rect(this, r, colorScheme.borderColor, Color.TRANSPARENT);
+      Draw.rect(this, r, colorScheme.borderColor, new Color(0, 0, 0, 0.05));
     }
 
     if (n.children.size() != 0) {
       for (Node child : n.children) {
-        if (!showDone && child.checkAttr("status", "done")) {
+        if (!child.show) {
           continue;
         }
 
         Vec2 a = n.getRightNode();
         Vec2 b = child.getLeftNode();
         Draw.bezier(this, a, new Vec2((a.x + b.x) / 2, a.y),
-            new Vec2((a.x + b.x) / 2, b.y), b, colorScheme.bezierColor);
+            new Vec2((a.x + b.x) / 2, b.y), b, colorScheme.bezierColor,
+            2);
 
         renderSubtree(child);
       }
@@ -135,7 +138,6 @@ public class App extends Application {
     targetNode.children.add(nodeToReparent);
     nodeToReparent.parent = targetNode;
 
-    modified = true;
     nodeToReparent = null;
     targetNode = null;
   }
@@ -145,8 +147,8 @@ public class App extends Application {
     handleReparent();
 
     // Calculate layout
-    Node n = tree.current;
-    calculateLayout(n);
+    // Node n = tree.current;
+    calculateLayout(tree.root);
 
     // Set color scheme
     if (darkMode) {
@@ -167,9 +169,8 @@ public class App extends Application {
         colorScheme.gridColor2);
 
     // Render subtree
-    jumpModeIndex = 100;
     tree.sort();
-    renderSubtree(n);
+    renderSubtree(tree.root);
     lmbClicked = false;
     rmbClicked = false;
 
@@ -178,11 +179,17 @@ public class App extends Application {
     int fontSize = 16;
     gc.setFont(Font.font("Arial", fontSize));
 
-    if (modified) {
+    if (tree.isModified()) {
       gc.fillText("modified", 10, 10 + fontSize);
     }
 
-    gc.fillText("" + jumpModeSelection, 10, 10 + fontSize * 2);
+    // Render list of children
+    int i = 1;
+    for (Node child : selectedNode.children) {
+      double y = 10 + fontSize * 4 + i * fontSize;
+      gc.fillText("" + i + " " + child.label, 10, y);
+      i++;
+    }
   }
 
   private String[] readLinesFromFile(String filename) {
@@ -201,6 +208,18 @@ public class App extends Application {
 
   @Override
   public void start(Stage stage) {
+    Parameters params = getParameters();
+    List<String> unnamedParams = params.getUnnamed();
+    List<String> rawParams = params.getRaw();
+    System.out.println("Number of unnamed params: " + unnamedParams.size());
+    for (String p : unnamedParams) {
+      System.out.println("Unnamed param: " + p);
+    }
+
+    System.out.println("Number of raw params: " + rawParams.size());
+    for (String p : rawParams) {
+      System.out.println("Raw param: " + p);
+    }
 
     ColorScheme d = darkColorScheme;
     d.backgroundColor = Color.BLACK;
@@ -253,7 +272,18 @@ public class App extends Application {
           case "globalOffsetY":
             globalOffset.y = Double.parseDouble(parts[1]);
             break;
+          case "currentNodeFQNN":
+            tree.current = tree.findNode(parts[1]);
+            break;
         }
+      }
+    }
+
+    if (getParameters().getRaw().size() > 0) {
+      System.out.println("args: " + getParameters().getRaw());
+      String firstArg = getParameters().getRaw().get(0);
+      if (firstArg != null) {
+        selectedNode = tree.findNode(firstArg);
       }
     }
 
@@ -328,6 +358,6 @@ public class App extends Application {
   }
 
   public static void main(String[] args) {
-    launch();
+    launch(args);
   }
 }
