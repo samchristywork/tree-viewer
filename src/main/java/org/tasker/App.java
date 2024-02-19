@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -15,22 +16,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-
-class ColorScheme {
-  Color backgroundColor;
-  Color bezierColor;
-  Color borderColor;
-  Color gridColor1;
-  Color gridColor2;
-  Color jumpTextColor;
-  Color nodeBackgroundColor;
-  Color nodeBorderColor;
-  Color nodeCompletedColor;
-  Color nodeHoverColor;
-  Color nodeReparentColor;
-  Color nodeSelectedColor;
-  Color textColor;
-}
 
 public class App extends Application {
   ColorScheme colorScheme;
@@ -217,33 +202,33 @@ public class App extends Application {
   @Override
   public void start(Stage stage) {
 
-    // TODO: Move to a config file
-    darkColorScheme.backgroundColor = Color.BLACK;
-    darkColorScheme.bezierColor = Color.GREY;
-    darkColorScheme.borderColor = new Color(0.5, 0.5, 0.5, 1);
-    darkColorScheme.gridColor1 = new Color(0.1, 0.1, 0.1, 1);
-    darkColorScheme.gridColor2 = new Color(0.2, 0.2, 0.2, 1);
-    darkColorScheme.jumpTextColor = Color.RED;
-    darkColorScheme.nodeBackgroundColor = Color.BLACK;
-    darkColorScheme.nodeBorderColor = Color.GREY;
-    darkColorScheme.nodeCompletedColor = new Color(0.2, 0.4, 0.2, 1);
-    darkColorScheme.nodeHoverColor = new Color(0.2, 0.2, 0.2, 1);
-    darkColorScheme.nodeReparentColor = new Color(0.12, 0.22, 0.32, 1);
-    darkColorScheme.nodeSelectedColor = new Color(0.32, 0.45, 0.5, 1);
-    darkColorScheme.textColor = Color.WHITE;
-    lightColorScheme.backgroundColor = Color.WHITE;
-    lightColorScheme.bezierColor = Color.GREY;
-    lightColorScheme.borderColor = Color.DARKGREY;
-    lightColorScheme.gridColor1 = new Color(0.9, 0.9, 0.9, 1);
-    lightColorScheme.gridColor2 = new Color(0.8, 0.8, 0.8, 1);
-    lightColorScheme.jumpTextColor = Color.DARKRED;
-    lightColorScheme.nodeBackgroundColor = Color.WHITE;
-    lightColorScheme.nodeBorderColor = Color.DARKGREY;
-    lightColorScheme.nodeCompletedColor = new Color(0.6, 0.8, 0.6, 1);
-    lightColorScheme.nodeHoverColor = new Color(0.95, 0.95, 0.95, 1);
-    lightColorScheme.nodeReparentColor = new Color(0.96, 0.88, 0.72, 1);
-    lightColorScheme.nodeSelectedColor = new Color(0.68, 0.85, 0.9, 1);
-    lightColorScheme.textColor = Color.BLACK;
+    ColorScheme d = darkColorScheme;
+    d.backgroundColor = Color.BLACK;
+    d.bezierColor = Color.GREY;
+    d.borderColor = new Color(0.5, 0.5, 0.5, 1);
+    d.gridColor1 = new Color(0.1, 0.1, 0.1, 1);
+    d.gridColor2 = new Color(0.2, 0.2, 0.2, 1);
+    d.nodeBackgroundColor = Color.BLACK;
+    d.nodeBorderColor = Color.GREY;
+    d.nodeCompletedColor = new Color(0.2, 0.4, 0.2, 1);
+    d.nodeHoverColor = new Color(0.2, 0.2, 0.2, 1);
+    d.nodeReparentColor = new Color(0.12, 0.22, 0.32, 1);
+    d.nodeSelectedColor = new Color(0.32, 0.45, 0.5, 1);
+    d.textColor = Color.WHITE;
+
+    ColorScheme l = lightColorScheme;
+    l.backgroundColor = Color.WHITE;
+    l.bezierColor = new Color(0.5, 0.5, 0.7, 0.5);
+    l.borderColor = Color.DARKGREY;
+    l.gridColor1 = new Color(0.9, 0.9, 0.9, 1);
+    l.gridColor2 = new Color(0.8, 0.8, 0.8, 1);
+    l.nodeBackgroundColor = Color.WHITE;
+    l.nodeBorderColor = Color.DARKGREY;
+    l.nodeCompletedColor = new Color(0.8, 0.9, 0.8, 1);
+    l.nodeHoverColor = new Color(0.95, 0.95, 0.95, 1);
+    l.nodeReparentColor = new Color(0.96, 0.88, 0.72, 1);
+    l.nodeSelectedColor = new Color(0.69, 0.85, 0.9, 1);
+    l.textColor = Color.BLACK;
 
     tree.readFromFile("save.tree");
 
