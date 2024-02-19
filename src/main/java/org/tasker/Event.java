@@ -4,36 +4,145 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Optional;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.VBox;
 
 class Event {
-  public static final Object[][] keyMap = {
+  static final Object[][] keyMap = {
+      { "0", "Jump to the root node" },
+      { "1-9", "Jump to the nth child of the current node" },
       { "ADD", "Zoom in" },
+      { "SUBTRACT", "Zoom out" },
       { "ENTER", "Change the root of the tree" },
       { "ESCAPE", "Quit" },
-      { "SPACE", "Go to the root node" },
-      { "SUBTRACT", "Zoom out" },
+      { "SPACE", "Open the command menu" },
       { "TAB", "Show/hide finished nodes" },
-      { "D", "Toggle dark mode" },
+      { "F", "Open the find node dialog" },
       { "H", "Move left" },
       { "J", "Move down" },
       { "K", "Move up" },
       { "L", "Move right" },
       { "M", "Mark a node as done" },
       { "N", "Add a new node" },
+      { "O", "Open node file" },
       { "P", "Insert a new node" },
       { "Q", "Quit" },
       { "R", "Rename the selected node" },
       { "S", "Save the tree" },
-      { "T", "Test for data integrity" },
       { "U", "Show usage" },
       { "Z", "Center the view on the selected node" },
   };
+
+  static String commands[] = {
+      "Exit",
+      "Go to root",
+      "Toggle dark mode",
+      "Test",
+  };
+
+  static boolean caseInsensitiveCharMatch(char a, char b) {
+    return Character.toLowerCase(a) == Character.toLowerCase(b);
+  }
+
+  static boolean filterChoices(String choice, String newV) {
+    if (newV.length() == 0) {
+      return true;
+    }
+
+    int j = 0;
+    for (int i = 0; i < choice.length(); i++) {
+      if (j == newV.length()) {
+        return true;
+      }
+      if (caseInsensitiveCharMatch(choice.charAt(i), newV.charAt(j))) {
+        j++;
+      }
+    }
+    if (j == newV.length()) {
+      return true;
+    }
+
+    return false;
+  }
+
+  static void updateChoices(TextField textField, VBox availableChoices,
+      String[] choices, String newV) {
+    availableChoices.getChildren().clear();
+    for (String choice : choices) {
+      if (choice != null) {
+        String c = choice.replace("\t", "→");
+        if (filterChoices(c, newV)) {
+          availableChoices.getChildren().add(new Label(c));
+        }
+      }
+    }
+  }
+
+  static String showDialog(String[] choices) {
+    Dialog<String> dialog = new Dialog<>();
+    dialog.setTitle("Text Update Window");
+
+    TextField textField = new TextField();
+    VBox availableChoices = new VBox();
+
+    textField.textProperty().addListener(new ChangeListener<String>() {
+      @Override
+      public void changed(ObservableValue<? extends String> o, String oldV,
+          String newV) {
+        updateChoices(textField, availableChoices, choices, newV);
+      }
+    });
+
+    updateChoices(textField, availableChoices, choices, "");
+
+    textField.setOnKeyPressed(e -> {
+      if (e.getCode() == KeyCode.UP) {
+        ObservableList<javafx.scene.Node> children = availableChoices.getChildren();
+        javafx.scene.Node topChoice = children.get(0);
+        children.remove(0);
+        children.add(topChoice);
+      } else if (e.getCode() == KeyCode.DOWN) {
+        ObservableList<javafx.scene.Node> children = availableChoices.getChildren();
+        javafx.scene.Node bottomChoice = children.get(children.size() - 1);
+        children.remove(children.size() - 1);
+        children.add(0, bottomChoice);
+      }
+    });
+
+    textField.onActionProperty().set(e -> {
+      ObservableList<javafx.scene.Node> children = availableChoices.getChildren();
+      if (children.size() > 0) {
+        textField.setText(((Label) children.get(0)).getText());
+      } else {
+        textField.setText("");
+      }
+      dialog.close();
+    });
+
+    VBox vBox = new VBox(10, textField, availableChoices);
+    vBox.setPadding(new Insets(20, 20, 20, 20));
+    dialog.getDialogPane().setContent(vBox);
+
+    ButtonType buttonTypeOk = new ButtonType("OK");
+    dialog.getDialogPane().getButtonTypes().add(buttonTypeOk);
+    dialog.setOnShown(e -> textField.requestFocus());
+    dialog.showAndWait();
+
+    return textField.getText().replace("→", "\t");
+  }
 
   public static void usage() {
     Alert alert = new Alert(AlertType.INFORMATION);
