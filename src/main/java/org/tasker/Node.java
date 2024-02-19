@@ -1,7 +1,8 @@
 package org.tasker;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,12 +18,10 @@ class Node {
   String label;
   Vec2 extents = new Vec2(0, 0);
   Vec2 leftNode;
-  Vec2 offset = new Vec2(0, 0);
   Vec2 rightNode;
   boolean collapsed = false;
   boolean rightClicked = false;
-  double height = 0;
-  double width = 0;
+  boolean show = true;
   private HashMap<String, String> attributes = new HashMap<String, String>();
 
   Node(String label, Node parent) {
@@ -32,6 +31,18 @@ class Node {
 
   Node(String label) {
     this.label = label;
+  }
+
+  public ArrayList<String> getFQNNs() {
+    ArrayList<String> fqnns = new ArrayList<String>();
+    fqnns.add(fullyQualifiedName());
+    for (Node child : children) {
+      ArrayList<String> childFQNNs = child.getFQNNs();
+      for (String fqnn : childFQNNs) {
+        fqnns.add(fqnn);
+      }
+    }
+    return fqnns;
   }
 
   public void sort() {
@@ -58,10 +69,14 @@ class Node {
   }
 
   public String fullyQualifiedName() {
-    if (parent.parent == null) {
-      return label;
+    if (parent == null) {
+      return null;
     } else {
-      return parent.fullyQualifiedName() + "	" + label;
+      if (parent.parent == null) {
+        return label;
+      } else {
+        return parent.fullyQualifiedName() + "	" + label;
+      }
     }
   }
 
@@ -134,7 +149,6 @@ class Node {
             @Override
             public void run() {
               addChild(name);
-              app.modified = true;
               app.render();
             }
           });
@@ -156,7 +170,49 @@ class Node {
             public void run() {
               label = name;
 
-              app.modified = true;
+              app.render();
+            }
+          });
+        });
+      }
+    });
+  }
+
+  public void openFile(App app) {
+    Platform.runLater(new Runnable() {
+      @Override
+      public void run() {
+        String filename = attributes.get("file");
+        if (filename == null) {
+          filename = "files/" + label + ".md";
+        }
+
+        TextInputDialog dialog = new TextInputDialog(filename);
+        dialog.setTitle("Open File");
+        dialog.setContentText("Name:");
+        dialog.showAndWait().ifPresent(name -> {
+          Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+              String filename = name;
+
+              Path path = Paths.get(filename);
+              if (!Files.exists(path)) {
+                try {
+                  Files.createFile(path);
+                } catch (Exception e) {
+                  e.printStackTrace();
+                }
+              }
+
+              attributes.put("file", filename);
+
+              try {
+                Runtime.getRuntime().exec("st -e nvim " + filename);
+              } catch (Exception e) {
+                e.printStackTrace();
+              }
+
               app.render();
             }
           });
@@ -176,30 +232,44 @@ class Node {
   }
 
   // TODO: Inefficient
-  public Node findNode(String fqnn) {
-    if (fullyQualifiedName().equals(fqnn)) {
-      return this;
+  public Node findNode(String[] fqnn) {
+    if (fqnn.length == 0) {
+      return null;
     }
+
+    if (fqnn.length == 1) {
+      if (label.equals(fqnn[0])) {
+        return this;
+      }
+    }
+
     for (Node child : children) {
-      Node n = child.findNode(fqnn);
+      String[] fqnnTail = new String[fqnn.length - 1];
+      for (int i = 1; i < fqnn.length; i++) {
+        fqnnTail[i - 1] = fqnn[i];
+      }
+      Node n = child.findNode(fqnnTail);
       if (n != null) {
         return n;
       }
     }
+
     return null;
   }
 
-  private void drawText(App app, Vec2 offset, Vec2 extents) {
-    Draw.text(app, label,
-        new Vec2(offset.x, offset.y * app.lineHeight + 3 * extents.y / 4),
-        app.colorScheme.textColor);
+  private void drawText(App app, Vec2 extents) {
+    double x = r.x + app.padding.x;
+    double y = r.y + 3 * extents.y / 4 + app.padding.y;
+    Draw.text(app, label, new Vec2(x, y), app.colorScheme.textColor);
   }
 
   private void drawRect(App app, Node n, Vec2 offset, Vec2 extents, Rect r) {
-    if (r.contains(new Vec2(app.mouse.x - app.globalOffset.x,
-        app.mouse.y - app.globalOffset.y))) {
-      Draw.rect(app, r, app.colorScheme.nodeBorderColor,
-          app.colorScheme.nodeHoverColor);
+    Vec2 mousePos = new Vec2();
+    mousePos.x = app.mouse.x - app.globalOffset.x;
+    mousePos.y = app.mouse.y - app.globalOffset.y;
+    if (r.contains(mousePos)) {
+      ColorScheme cs = app.colorScheme;
+      Draw.rect(app, r, cs.nodeBorderColor, cs.nodeHoverColor);
 
       if (app.lmbClicked) {
         app.selectedNode = n;
@@ -243,6 +313,10 @@ class Node {
     double h = r.h;
 
     for (Node child : children) {
+      if (!child.show) {
+        continue;
+      }
+
       Rect r = child.getSubtreeRect();
       if (r.x < x) {
         x = r.x;
@@ -262,27 +336,7 @@ class Node {
   }
 
   public void draw(App app) {
-    if (app.jumpMode) {
-      if (app.jumpModeSelection == app.jumpModeIndex) {
-        app.selectedNode = this;
-        app.jumpModeSelection = 0;
-        app.jumpMode = false;
-      }
-    }
-
-    drawRect(app, this, offset, extents, r);
-    drawText(app, offset, extents);
-
-    if (app.jumpMode) {
-      app.gc.setFont(Font.font("Arial", 9 * app.size));
-      String s = "" + app.jumpModeIndex;
-      app.jumpModeIndex++;
-      Vec2 p = new Vec2(offset.x - app.padding.x + 2,
-          offset.y * app.lineHeight + extents.y / 2 -
-              app.padding.y + 2);
-      Color c = app.colorScheme.jumpTextColor;
-      Draw.text(app, s, p, c);
-      app.gc.setFont(Font.font("Arial", 12 * app.size));
-    }
+    drawRect(app, this, new Vec2(r.x, r.y), extents, r);
+    drawText(app, extents);
   }
 }
