@@ -53,6 +53,16 @@ class Event {
       "Test",
   };
 
+  static void zoom(App app) {
+    app.render();
+    app.globalOffset.x = -app.selectedNode.r.x;
+    app.globalOffset.y = -app.selectedNode.r.y;
+    app.globalOffset.x += app.dimensions.x / 2;
+    app.globalOffset.y += app.dimensions.y / 4;
+    app.globalOffset.x -= app.selectedNode.r.w / 2;
+    app.globalOffset.y -= app.selectedNode.r.h / 2;
+  }
+
   static boolean caseInsensitiveCharMatch(char a, char b) {
     return Character.toLowerCase(a) == Character.toLowerCase(b);
   }
@@ -161,9 +171,16 @@ class Event {
   public static void keyPressHandler(App app, KeyEvent key) {
     KeyCode code = key.getCode();
 
-    if (code.isDigitKey()) {
-      app.jumpModeSelection *= 10;
-      app.jumpModeSelection += code.ordinal() - 24;
+    if (code == KeyCode.DIGIT0) {
+      app.selectedNode = app.tree.root;
+      zoom(app);
+      app.render();
+      return;
+    } else if (code.isDigitKey()) {
+      if (app.selectedNode.children.size() > code.ordinal() - 25) {
+        app.selectedNode = app.selectedNode.children.get(code.ordinal() - 25);
+      }
+      zoom(app);
       app.render();
       return;
     }
@@ -173,16 +190,30 @@ class Event {
         app.size *= 1.1;
         app.render();
         break;
-      case BACK_SPACE:
-        app.jumpModeSelection /= 10;
-        app.render();
-        break;
       case ENTER:
         app.tree.current = app.selectedNode;
+        zoom(app);
         app.render();
         break;
       case SPACE:
-        app.tree.current = app.tree.root;
+        String command = showDialog(commands);
+        switch (command) {
+          case "Exit":
+            System.exit(0);
+            break;
+          case "Go to root":
+            app.tree.current = app.tree.root;
+            app.selectedNode = app.tree.root;
+            break;
+          case "Toggle dark mode":
+            app.darkMode = !app.darkMode;
+            break;
+          case "Test":
+            app.tree.test();
+            break;
+          default:
+            break;
+        }
         app.render();
         break;
       case SUBTRACT:
@@ -193,12 +224,16 @@ class Event {
         app.showDone = !app.showDone;
         app.render();
         break;
-      case D:
-        app.darkMode = !app.darkMode;
-        app.render();
-        break;
       case F:
-        app.jumpMode = !app.jumpMode;
+        ArrayList<String> nodeArray = app.tree.current.getFQNNs();
+        String[] nodes = new String[nodeArray.size()];
+        nodes = nodeArray.toArray(nodes);
+        String fqnn = showDialog(nodes);
+        Node n = app.tree.findNode(fqnn);
+        if (n != null) {
+          app.selectedNode = n;
+        }
+        zoom(app);
         app.render();
         break;
       case H:
@@ -246,16 +281,16 @@ class Event {
           app.selectedNode.putAttr("status", "done");
         }
 
-        app.modified = true;
         app.render();
         break;
       case N:
         app.selectedNode.addNode(app);
         break;
+      case O:
+        app.selectedNode.openFile(app);
+        break;
       case P:
         app.selectedNode = app.selectedNode.insert("new");
-
-        app.modified = true;
         app.render();
         break;
       case R:
@@ -265,43 +300,44 @@ class Event {
         try {
           String dateTime = LocalDateTime.now().toString();
           app.tree.writeToFile("save.tree", "backups/" + dateTime + ".tree");
-          app.modified = false;
         } catch (IOException e) {
           e.printStackTrace();
         }
         app.render();
         break;
-      case T:
-        app.tree.test();
-        break;
       case U:
         usage();
         break;
       case Z:
-        app.globalOffset.x = -app.selectedNode.r.x;
-        app.globalOffset.y = -app.selectedNode.r.y;
-        app.globalOffset.x += app.dimensions.x / 2;
-        app.globalOffset.y += app.dimensions.y / 2;
-        app.globalOffset.x -= app.selectedNode.r.w / 2;
-        app.globalOffset.y -= app.selectedNode.r.h / 2;
+        zoom(app);
         app.render();
         break;
       case Q:
       case ESCAPE:
         try {
           BufferedWriter writer = new BufferedWriter(new FileWriter("datastore"));
-          String fqnn = app.selectedNode.fullyQualifiedName();
           writer.write("darkMode=" + app.darkMode + "\n");
           writer.write("showDone=" + app.showDone + "\n");
-          writer.write("selectedNodeFQNN=" + fqnn + "\n");
           writer.write("globalOffsetX=" + app.globalOffset.x + "\n");
           writer.write("globalOffsetY=" + app.globalOffset.y + "\n");
+          if (app.selectedNode != null) {
+            String selectedFQNN = app.selectedNode.fullyQualifiedName();
+            if (selectedFQNN != null) {
+              writer.write("selectedNodeFQNN=" + selectedFQNN + "\n");
+            }
+          }
+          if (app.tree.current != null && app.tree.current != app.tree.root) {
+            String currentFQNN = app.tree.current.fullyQualifiedName();
+            if (currentFQNN != null) {
+              writer.write("currentNodeFQNN=" + currentFQNN + "\n");
+            }
+          }
           writer.close();
         } catch (IOException e) {
           e.printStackTrace();
         }
 
-        if (app.modified) {
+        if (app.tree.isModified()) {
           Alert alert = new Alert(AlertType.CONFIRMATION,
               "You have unsaved work. Quit anyway?",
               ButtonType.YES, ButtonType.NO);
