@@ -1,10 +1,14 @@
 .PHONY: build
 build:
-	mvn install
+	mvn package
+
+start:
+	java -jar target/Tasker-1.0.0.jar
 
 .PHONY: run
 run:
 	mvn javafx:run
+	find backups/ | sort | tail -n2 | xargs diff --color=always -u
 
 .PHONY: watch
 watch:
