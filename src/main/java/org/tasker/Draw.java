@@ -3,10 +3,8 @@ package org.tasker;
 import javafx.scene.paint.Color;
 
 class Draw {
-  public static void bezier(App app, Vec2 a, Vec2 b, Vec2 c, Vec2 d,
-      Color col) {
-    app.gc.setStroke(col);
-
+  public static void bezier(App app, Vec2 a, Vec2 b, Vec2 c, Vec2 d, Color col,
+      double lineWidth) {
     double ax = a.x + app.globalOffset.x;
     double ay = a.y + app.globalOffset.y;
     double bx = b.x + app.globalOffset.x;
@@ -16,10 +14,13 @@ class Draw {
     double dx = d.x + app.globalOffset.x;
     double dy = d.y + app.globalOffset.y;
 
+    app.gc.setStroke(col);
+    app.gc.setLineWidth(lineWidth);
     app.gc.beginPath();
     app.gc.moveTo(ax, ay);
     app.gc.bezierCurveTo(bx, by, cx, cy, dx, dy);
     app.gc.stroke();
+    app.gc.setLineWidth(1);
   }
 
   public static void line(App app, Vec2 a, Vec2 b, Color c) {
