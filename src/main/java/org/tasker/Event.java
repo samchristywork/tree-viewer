@@ -204,6 +204,46 @@ class Event {
     app.globalOffset.y -= app.selectedNode.r.h / 2;
   }
 
+  static boolean close(App app) {
+    try {
+      BufferedWriter writer = new BufferedWriter(new FileWriter("datastore"));
+      writer.write("darkMode=" + app.darkMode + "\n");
+      writer.write("showDone=" + app.showDone + "\n");
+      writer.write("globalOffsetX=" + app.globalOffset.x + "\n");
+      writer.write("globalOffsetY=" + app.globalOffset.y + "\n");
+      if (app.selectedNode != null) {
+        String selectedFQNN = app.selectedNode.fullyQualifiedName();
+        if (selectedFQNN != null) {
+          writer.write("selectedNodeFQNN=" + selectedFQNN + "\n");
+        }
+      }
+      if (app.tree.current != null && app.tree.current != app.tree.root) {
+        String currentFQNN = app.tree.current.fullyQualifiedName();
+        if (currentFQNN != null) {
+          writer.write("currentNodeFQNN=" + currentFQNN + "\n");
+        }
+      }
+      writer.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    if (app.tree.isModified()) {
+      Alert alert = new Alert(AlertType.CONFIRMATION,
+          "You have unsaved work. Quit anyway?",
+          ButtonType.YES, ButtonType.NO);
+      alert.setTitle("Confirmation Dialog");
+
+      Optional<ButtonType> result = alert.showAndWait();
+      if (result.isPresent() && result.get() == ButtonType.YES) {
+        return true;
+      }
+    } else {
+      return true;
+    }
+    return false;
+  }
+
   static boolean caseInsensitiveCharMatch(char a, char b) {
     return Character.toLowerCase(a) == Character.toLowerCase(b);
   }
@@ -310,20 +350,6 @@ class Event {
 
   public static void keyPressHandler(App app, KeyEvent key) {
     KeyCode code = key.getCode();
-
-    if (code == KeyCode.DIGIT0) {
-      app.selectedNode = app.tree.root;
-      zoom(app);
-      app.render();
-      return;
-    } else if (code.isDigitKey()) {
-      if (app.selectedNode.children.size() > code.ordinal() - 25) {
-        app.selectedNode = app.selectedNode.children.get(code.ordinal() - 25);
-      }
-      zoom(app);
-      app.render();
-      return;
-    }
 
     switch (code) {
       case DIGIT1:

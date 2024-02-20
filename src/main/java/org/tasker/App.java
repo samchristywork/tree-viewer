@@ -5,10 +5,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
@@ -16,6 +20,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 public class App extends Application {
   ColorScheme colorScheme;
@@ -354,8 +359,12 @@ public class App extends Application {
       render();
     });
 
-    stage.setOnCloseRequest((event) -> {
-      System.exit(0);
+    stage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, (e) -> {
+      if (Event.close(this)) {
+        System.exit(0);
+      } else {
+        e.consume();
+      }
     });
 
     stage.setScene(scene);
