@@ -62,6 +62,11 @@ public class App extends Application {
     n.r.w = n.extents.x + padding.x * 2;
     n.r.h = n.extents.y + padding.y * 2;
 
+    if (n == nodeToReparent) {
+      n.r.x = -globalOffset.x + mouse.x - n.r.w / 2;
+      n.r.y = -globalOffset.y + mouse.y - n.r.h / 2;
+    }
+
     if (n.children.size() == 0) {
       height = 1;
     } else {
