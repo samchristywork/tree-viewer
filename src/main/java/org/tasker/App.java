@@ -101,6 +101,10 @@ public class App extends Application {
 
         Vec2 a = n.getRightNode();
         Vec2 b = child.getLeftNode();
+        Draw.circle(this, a, 3, colorScheme.nodeBorderColor,
+            colorScheme.bezierColor, 1);
+        Draw.circle(this, b, 3, colorScheme.nodeBorderColor,
+            colorScheme.bezierColor, 1);
         Draw.bezier(this, a, new Vec2((a.x + b.x) / 2, a.y),
             new Vec2((a.x + b.x) / 2, b.y), b, colorScheme.bezierColor,
             2);

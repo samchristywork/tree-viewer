@@ -282,7 +282,7 @@ class Node {
     mousePos.y = app.mouse.y - app.globalOffset.y;
     if (r.contains(mousePos)) {
       ColorScheme cs = app.colorScheme;
-      Draw.rect(app, r, cs.nodeBorderColor, cs.nodeHoverColor);
+      Draw.rect(app, r, cs.nodeBorderColor, cs.nodeHoverColor, 1);
 
       if (app.lmbClicked) {
         app.selectedNode = n;
@@ -298,16 +298,16 @@ class Node {
       }
     } else if (n == app.nodeToReparent) {
       Draw.rect(app, r, app.colorScheme.nodeBorderColor,
-          app.colorScheme.nodeReparentColor);
+          app.colorScheme.nodeReparentColor, 1);
     } else if (n == app.selectedNode) {
       Draw.rect(app, r, app.colorScheme.nodeBorderColor,
-          app.colorScheme.nodeSelectedColor);
+          app.colorScheme.nodeSelectedColor, 1);
     } else if (n.checkAttr("status", "done")) {
       Draw.rect(app, r, app.colorScheme.nodeBorderColor,
-          app.colorScheme.nodeCompletedColor);
+          app.colorScheme.nodeCompletedColor, 1);
     } else {
       Draw.rect(app, r, app.colorScheme.nodeBorderColor,
-          app.colorScheme.nodeBackgroundColor);
+          app.colorScheme.nodeBackgroundColor, 1);
     }
   }
 
