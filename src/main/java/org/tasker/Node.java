@@ -221,7 +221,8 @@ class Node {
               attributes.put("file", filename);
 
               try {
-                Runtime.getRuntime().exec("st -e nvim " + filename);
+                String[] cmd = { "st", "-e", "nvim", filename };
+                Runtime.getRuntime().exec(cmd);
               } catch (Exception e) {
                 e.printStackTrace();
               }

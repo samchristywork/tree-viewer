@@ -72,7 +72,7 @@ public class App extends Application {
           child.show = false;
           continue;
         } else if (!child.isAncestor(tree.current) &&
-            !tree.current.isAncestor(child) && tree.current != child) {
+                   !tree.current.isAncestor(child) && tree.current != child) {
           child.show = false;
           continue;
         } else {
@@ -98,7 +98,7 @@ public class App extends Application {
       r.w += padding.x * 2;
       r.h += padding.y * 2;
       Draw.rect(this, r, colorScheme.borderColor, colorScheme.borderBackground,
-          1);
+                1);
     }
 
     if (n.children.size() != 0) {
@@ -110,12 +110,12 @@ public class App extends Application {
         Vec2 a = n.getRightNode();
         Vec2 b = child.getLeftNode();
         Draw.circle(this, a, 3, colorScheme.nodeBorderColor,
-            colorScheme.bezierColor, 1);
+                    colorScheme.bezierColor, 1);
         Draw.circle(this, b, 3, colorScheme.nodeBorderColor,
-            colorScheme.bezierColor, 1);
+                    colorScheme.bezierColor, 1);
         Draw.bezier(this, a, new Vec2((a.x + b.x) / 2, a.y),
-            new Vec2((a.x + b.x) / 2, b.y), b, colorScheme.bezierColor,
-            2);
+                    new Vec2((a.x + b.x) / 2, b.y), b, colorScheme.bezierColor,
+                    2);
 
         renderSubtree(child);
       }
@@ -176,9 +176,9 @@ public class App extends Application {
 
     // Render grid
     Grid.renderGrid(this, new Vec2(20, 20), new Vec2(100, 100),
-        colorScheme.gridColor1);
+                    colorScheme.gridColor1);
     Grid.renderGrid(this, new Vec2(100, 100), new Vec2(100, 100),
-        colorScheme.gridColor2);
+                    colorScheme.gridColor2);
 
     // Render subtree
     tree.sort();
@@ -271,24 +271,24 @@ public class App extends Application {
       String[] parts = line.split("=");
       if (parts.length == 2) {
         switch (parts[0]) {
-          case "darkMode":
-            darkMode = Boolean.parseBoolean(parts[1]);
-            break;
-          case "showDone":
-            showDone = Boolean.parseBoolean(parts[1]);
-            break;
-          case "selectedNodeFQNN":
-            selectedNode = tree.findNode(parts[1]);
-            break;
-          case "globalOffsetX":
-            globalOffset.x = Double.parseDouble(parts[1]);
-            break;
-          case "globalOffsetY":
-            globalOffset.y = Double.parseDouble(parts[1]);
-            break;
-          case "currentNodeFQNN":
-            tree.current = tree.findNode(parts[1]);
-            break;
+        case "darkMode":
+          darkMode = Boolean.parseBoolean(parts[1]);
+          break;
+        case "showDone":
+          showDone = Boolean.parseBoolean(parts[1]);
+          break;
+        case "selectedNodeFQNN":
+          selectedNode = tree.findNode(parts[1]);
+          break;
+        case "globalOffsetX":
+          globalOffset.x = Double.parseDouble(parts[1]);
+          break;
+        case "globalOffsetY":
+          globalOffset.y = Double.parseDouble(parts[1]);
+          break;
+        case "currentNodeFQNN":
+          tree.current = tree.findNode(parts[1]);
+          break;
         }
       }
     }
@@ -311,21 +311,19 @@ public class App extends Application {
     gc = canvas.getGraphicsContext2D();
 
     scene.widthProperty().addListener((obs, oldVal, newVal) -> {
-      dimensions.x = (double) newVal;
+      dimensions.x = (double)newVal;
       canvas.setWidth(dimensions.x);
       render();
     });
 
     scene.heightProperty().addListener((obs, oldVal, newVal) -> {
-      dimensions.y = (double) newVal;
+      dimensions.y = (double)newVal;
       canvas.setHeight(dimensions.y);
       render();
     });
 
     scene.addEventHandler(KeyEvent.KEY_PRESSED,
-        (key) -> {
-          Event.keyPressHandler(this, key);
-        });
+                          (key) -> { Event.keyPressHandler(this, key); });
 
     scene.addEventHandler(MouseEvent.MOUSE_CLICKED, (m) -> {
       mouse.x = m.getX();
@@ -375,7 +373,5 @@ public class App extends Application {
     render();
   }
 
-  public static void main(String[] args) {
-    launch(args);
-  }
+  public static void main(String[] args) { launch(args); }
 }
