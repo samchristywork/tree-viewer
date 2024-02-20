@@ -8,8 +8,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import javafx.application.Platform;
 import javafx.scene.control.TextInputDialog;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 
 class Node {
   ArrayList<Node> children = new ArrayList<Node>();
@@ -91,6 +89,18 @@ class Node {
     return child;
   }
 
+  public ArrayList<Node> getNodes() {
+    ArrayList<Node> nodes = new ArrayList<Node>();
+    nodes.add(this);
+    for (Node child : children) {
+      ArrayList<Node> childNodes = child.getNodes();
+      for (Node n : childNodes) {
+        nodes.add(n);
+      }
+    }
+    return nodes;
+  }
+
   public Node findChild(String label) {
     for (Node child : children) {
       if (child.label.equals(label)) {
@@ -150,6 +160,8 @@ class Node {
             public void run() {
               addChild(name);
               app.render();
+              Event.zoom(app);
+              app.render();
             }
           });
         });
@@ -169,7 +181,8 @@ class Node {
             @Override
             public void run() {
               label = name;
-
+              app.render();
+              Event.zoom(app);
               app.render();
             }
           });

@@ -14,7 +14,9 @@ class Tree {
   public Node current = root;
   String state = "";
 
-  public void sort() { root.sort(); }
+  public void sort() {
+    root.sort();
+  }
 
   public boolean isModified() {
     if (serialize().equals(state)) {
@@ -108,6 +110,13 @@ class Tree {
     state = serialize();
   }
 
+  public Node randomNode() {
+    ArrayList<Node> nodes = root.getNodes();
+    int n = nodes.size();
+    int i = (int) (Math.random() * n);
+    return nodes.get(i);
+  }
+
   public Node findNode(String fqnn) {
     String fqnnParts[] = fqnn.split("	");
     for (Node child : root.children) {
@@ -118,6 +127,17 @@ class Tree {
     }
 
     return null;
+  }
+
+  public void deleteNode(Node n) {
+    if (n.parent != null) {
+      n.parent.children.remove(n);
+
+      for (Node child : n.children) {
+        child.parent = n.parent;
+        n.parent.children.add(child);
+      }
+    }
   }
 
   private void test(Node n) {
