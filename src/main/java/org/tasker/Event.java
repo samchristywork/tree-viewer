@@ -336,14 +336,16 @@ class Event {
   }
 
   public static void usage() {
+    String content = "";
+    for (Object[] key : bindings) {
+      if (key[0] != "") {
+        content += key[0] + ": " + key[2] + "\n";
+      }
+    }
+
     Alert alert = new Alert(AlertType.INFORMATION);
     alert.setTitle("Help");
     alert.setHeaderText("Tasker");
-
-    String content = "";
-    for (Object[] key : keyMap) {
-      content += key[0] + ": " + key[1] + "\n";
-    }
     alert.setContentText(content);
     alert.showAndWait();
   }
