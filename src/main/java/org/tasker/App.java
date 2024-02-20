@@ -90,7 +90,8 @@ public class App extends Application {
       r.y -= padding.y;
       r.w += padding.x * 2;
       r.h += padding.y * 2;
-      Draw.rect(this, r, colorScheme.borderColor, new Color(0, 0, 0, 0.05));
+      Draw.rect(this, r, colorScheme.borderColor, colorScheme.borderBackground,
+          1);
     }
 
     if (n.children.size() != 0) {
@@ -227,7 +228,8 @@ public class App extends Application {
 
     ColorScheme d = darkColorScheme;
     d.backgroundColor = Color.BLACK;
-    d.bezierColor = Color.GREY;
+    d.bezierColor = new Color(0.5, 0.5, 0.7, 0.5);
+    d.borderBackground = new Color(1, 1, 1, 0.05);
     d.borderColor = new Color(0.5, 0.5, 0.5, 1);
     d.gridColor1 = new Color(0.1, 0.1, 0.1, 1);
     d.gridColor2 = new Color(0.2, 0.2, 0.2, 1);
@@ -236,12 +238,13 @@ public class App extends Application {
     d.nodeCompletedColor = new Color(0.2, 0.4, 0.2, 1);
     d.nodeHoverColor = new Color(0.2, 0.2, 0.2, 1);
     d.nodeReparentColor = new Color(0.12, 0.22, 0.32, 1);
-    d.nodeSelectedColor = new Color(0.32, 0.45, 0.5, 1);
+    d.nodeSelectedColor = new Color(0.1, 0.2, 0.3, 1);
     d.textColor = Color.WHITE;
 
     ColorScheme l = lightColorScheme;
     l.backgroundColor = Color.WHITE;
     l.bezierColor = new Color(0.5, 0.5, 0.7, 0.5);
+    l.borderBackground = new Color(0, 0, 0, 0.05);
     l.borderColor = Color.DARKGREY;
     l.gridColor1 = new Color(0.9, 0.9, 0.9, 1);
     l.gridColor2 = new Color(0.8, 0.8, 0.8, 1);

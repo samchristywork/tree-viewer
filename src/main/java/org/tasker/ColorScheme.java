@@ -5,6 +5,7 @@ import javafx.scene.paint.Color;
 public class ColorScheme {
   Color backgroundColor;
   Color bezierColor;
+  Color borderBackground;
   Color borderColor;
   Color gridColor1;
   Color gridColor2;
