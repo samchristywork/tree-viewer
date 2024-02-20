@@ -21,37 +21,178 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 
 class Event {
-  static final Object[][] keyMap = {
-      { "0", "Jump to the root node" },
-      { "1-9", "Jump to the nth child of the current node" },
-      { "ADD", "Zoom in" },
-      { "SUBTRACT", "Zoom out" },
-      { "ENTER", "Change the root of the tree" },
-      { "ESCAPE", "Quit" },
-      { "SPACE", "Open the command menu" },
-      { "TAB", "Show/hide finished nodes" },
-      { "F", "Open the find node dialog" },
-      { "H", "Move left" },
-      { "J", "Move down" },
-      { "K", "Move up" },
-      { "L", "Move right" },
-      { "M", "Mark a node as done" },
-      { "N", "Add a new node" },
-      { "O", "Open node file" },
-      { "P", "Insert a new node" },
-      { "Q", "Quit" },
-      { "R", "Rename the selected node" },
-      { "S", "Save the tree" },
-      { "U", "Show usage" },
-      { "Z", "Center the view on the selected node" },
+  static String sep = "→";
+
+  static Object bindings[][] = {
+      { "0", KeyCode.DIGIT0, "Go to root" },
+      { "1-9", null, "Jump to the nth child of the current node" },
+      { "Add", KeyCode.ADD, "Zoom in" },
+      { "Subtract", KeyCode.SUBTRACT, "Zoom out" },
+      { "Enter", KeyCode.ENTER, "Set current node" },
+      { "Escape", KeyCode.ESCAPE, "Exit" },
+      { "Forward Slash", KeyCode.SLASH, "Find node dialog" },
+      { "Space", KeyCode.SPACE, "Select event dialog" },
+      { "Tab", KeyCode.TAB, "Show/hide completed nodes" },
+      { "A", KeyCode.A, "Select random node" },
+      { "H", KeyCode.H, "Move left" },
+      { "J", KeyCode.J, "Move down" },
+      { "K", KeyCode.K, "Move up" },
+      { "L", KeyCode.L, "Move right" },
+      { "M", KeyCode.M, "Mark a node as done" },
+      { "N", KeyCode.N, "Add a new node" },
+      { "O", KeyCode.O, "Open node file" },
+      { "P", KeyCode.P, "Add a parent node" },
+      { "Q", KeyCode.Q, "Exit" },
+      { "R", KeyCode.R, "Rename the selected node" },
+      { "S", KeyCode.S, "Save the tree" },
+      { "U", KeyCode.U, "Show usage" },
+      { "X", KeyCode.X, "Delete the selected node" },
+      { "Z", KeyCode.Z, "Pan to selected node" },
+      { "", null, "Test" },
   };
 
-  static String commands[] = {
-      "Exit",
-      "Go to root",
-      "Toggle dark mode",
-      "Test",
-  };
+  static void handleEvent(App app, String event) {
+    System.out.println("Event: " + event);
+
+    switch (event) {
+      case "Add a new node":
+        app.selectedNode.addNode(app);
+        break;
+      case "Delete the selected node":
+        Node parent = app.selectedNode.parent;
+        app.tree.deleteNode(app.selectedNode);
+        app.selectedNode = parent;
+        zoom(app);
+        break;
+      case "Exit":
+        if (close(app)) {
+          System.exit(0);
+        }
+        break;
+      case "Find node dialog":
+        ArrayList<String> nodeArray = app.tree.current.getFQNNs();
+        String[] nodes = new String[nodeArray.size()];
+        nodes = nodeArray.toArray(nodes);
+        String fqnn = showDialog(nodes);
+        Node n = app.tree.findNode(fqnn);
+        if (n != null) {
+          app.selectedNode = n;
+        }
+        zoom(app);
+        break;
+      case "Go to root":
+        app.selectedNode = app.tree.root;
+        zoom(app);
+        break;
+      case "Add a parent node":
+        app.selectedNode = app.selectedNode.insert("new");
+        app.selectedNode = app.selectedNode.parent;
+        app.render();
+        zoom(app);
+        break;
+      case "Mark a node as done":
+        if (app.selectedNode.checkAttr("status", "done")) {
+          app.selectedNode.removeAttr("status");
+        } else {
+          app.selectedNode.putAttr("status", "done");
+        }
+        break;
+      case "Move left":
+        if (app.selectedNode != null) {
+          if (app.selectedNode.parent != null) {
+            app.selectedNode = app.selectedNode.parent;
+          }
+        }
+        zoom(app);
+        break;
+      case "Move down":
+        if (app.selectedNode != null) {
+          if (app.selectedNode.parent != null) {
+            int index = app.selectedNode.parent.children.indexOf(app.selectedNode);
+            if (index < app.selectedNode.parent.children.size() - 1) {
+              app.selectedNode = app.selectedNode.parent.children.get(index + 1);
+            }
+          }
+        }
+        zoom(app);
+        break;
+      case "Move up":
+        if (app.selectedNode != null) {
+          if (app.selectedNode.parent != null) {
+            int index = app.selectedNode.parent.children.indexOf(app.selectedNode);
+            if (index > 0) {
+              app.selectedNode = app.selectedNode.parent.children.get(index - 1);
+            }
+          }
+        }
+        zoom(app);
+        break;
+      case "Move right":
+        if (app.selectedNode != null) {
+          if (app.selectedNode.children.size() > 0) {
+            app.selectedNode = app.selectedNode.children.get(0);
+          }
+        }
+        zoom(app);
+        break;
+      case "Open node file":
+        app.selectedNode.openFile(app);
+        break;
+      case "Pan to selected node":
+        zoom(app);
+        break;
+      case "Rename the selected node":
+        app.selectedNode.rename(app);
+        break;
+      case "Save the tree":
+        try {
+          String dateTime = LocalDateTime.now().toString();
+          app.tree.writeToFile("save.tree", "backups/" + dateTime + ".tree");
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+        break;
+      case "Select event dialog":
+        String[] commands = new String[bindings.length];
+        for (int i = 0; i < bindings.length; i++) {
+          commands[i] = (String) bindings[i][2];
+        }
+        String command = showDialog(commands);
+        handleEvent(app, command);
+        break;
+      case "Select random node":
+        app.selectedNode = app.tree.randomNode();
+        zoom(app);
+        break;
+      case "Set current node":
+        app.tree.current = app.selectedNode;
+        zoom(app);
+        break;
+      case "Show usage":
+        usage();
+        break;
+      case "Test":
+        app.tree.test();
+        break;
+      case "Toggle dark mode":
+        app.darkMode = !app.darkMode;
+        break;
+      case "Show/hide completed nodes":
+        app.showDone = !app.showDone;
+        break;
+      case "Zoom in":
+        app.size *= 1.1;
+        break;
+      case "Zoom out":
+        app.size *= 0.9;
+        break;
+      default:
+        System.out.println("Unknown event: " + event);
+        break;
+    }
+
+    app.render();
+  }
 
   static void zoom(App app) {
     app.render();
@@ -93,7 +234,7 @@ class Event {
     availableChoices.getChildren().clear();
     for (String choice : choices) {
       if (choice != null) {
-        String c = choice.replace("\t", "→");
+        String c = choice.replace("\t", sep);
         if (filterChoices(c, newV)) {
           availableChoices.getChildren().add(new Label(c));
         }
@@ -151,7 +292,7 @@ class Event {
     dialog.setOnShown(e -> textField.requestFocus());
     dialog.showAndWait();
 
-    return textField.getText().replace("→", "\t");
+    return textField.getText().replace(sep, "\t");
   }
 
   public static void usage() {
@@ -164,7 +305,6 @@ class Event {
       content += key[0] + ": " + key[1] + "\n";
     }
     alert.setContentText(content);
-
     alert.showAndWait();
   }
 
@@ -186,174 +326,38 @@ class Event {
     }
 
     switch (code) {
-      case ADD:
-        app.size *= 1.1;
-        app.render();
-        break;
-      case ENTER:
-        app.tree.current = app.selectedNode;
-        zoom(app);
-        app.render();
-        break;
-      case SPACE:
-        String command = showDialog(commands);
-        switch (command) {
-          case "Exit":
-            System.exit(0);
-            break;
-          case "Go to root":
-            app.tree.current = app.tree.root;
-            app.selectedNode = app.tree.root;
-            break;
-          case "Toggle dark mode":
-            app.darkMode = !app.darkMode;
-            break;
-          case "Test":
-            app.tree.test();
-            break;
-          default:
-            break;
-        }
-        app.render();
-        break;
-      case SUBTRACT:
-        app.size *= 0.9;
-        app.render();
-        break;
-      case TAB:
-        app.showDone = !app.showDone;
-        app.render();
-        break;
-      case F:
-        ArrayList<String> nodeArray = app.tree.current.getFQNNs();
-        String[] nodes = new String[nodeArray.size()];
-        nodes = nodeArray.toArray(nodes);
-        String fqnn = showDialog(nodes);
-        Node n = app.tree.findNode(fqnn);
-        if (n != null) {
-          app.selectedNode = n;
+      case DIGIT1:
+      case DIGIT2:
+      case DIGIT3:
+      case DIGIT4:
+      case DIGIT5:
+      case DIGIT6:
+      case DIGIT7:
+      case DIGIT8:
+      case DIGIT9:
+        int index = code.ordinal() - 25;
+        if (app.selectedNode.children.size() > index) {
+          app.selectedNode = app.selectedNode.children.get(index);
+        } else if (app.selectedNode.children.size() > 0) {
+          app.selectedNode = app.selectedNode.children.get(app.selectedNode.children.size() - 1);
         }
         zoom(app);
         app.render();
-        break;
-      case H:
-        if (app.selectedNode != null) {
-          if (app.selectedNode.parent != null) {
-            app.selectedNode = app.selectedNode.parent;
-          }
-        }
-        app.render();
-        break;
-      case J:
-        if (app.selectedNode != null) {
-          if (app.selectedNode.parent != null) {
-            int index = app.selectedNode.parent.children.indexOf(app.selectedNode);
-            if (index < app.selectedNode.parent.children.size() - 1) {
-              app.selectedNode = app.selectedNode.parent.children.get(index + 1);
-            }
-          }
-        }
-        app.render();
-        break;
-      case K:
-        if (app.selectedNode != null) {
-          if (app.selectedNode.parent != null) {
-            int index = app.selectedNode.parent.children.indexOf(app.selectedNode);
-            if (index > 0) {
-              app.selectedNode = app.selectedNode.parent.children.get(index - 1);
-            }
-          }
-        }
-        app.render();
-        break;
-      case L:
-        if (app.selectedNode != null) {
-          if (app.selectedNode.children.size() > 0) {
-            app.selectedNode = app.selectedNode.children.get(0);
-          }
-        }
-        app.render();
-        break;
-      case M:
-        if (app.selectedNode.checkAttr("status", "done")) {
-          app.selectedNode.removeAttr("status");
-        } else {
-          app.selectedNode.putAttr("status", "done");
-        }
-
-        app.render();
-        break;
-      case N:
-        app.selectedNode.addNode(app);
-        break;
-      case O:
-        app.selectedNode.openFile(app);
-        break;
-      case P:
-        app.selectedNode = app.selectedNode.insert("new");
-        app.render();
-        break;
-      case R:
-        app.selectedNode.rename(app);
-        break;
-      case S:
-        try {
-          String dateTime = LocalDateTime.now().toString();
-          app.tree.writeToFile("save.tree", "backups/" + dateTime + ".tree");
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-        app.render();
-        break;
-      case U:
-        usage();
-        break;
-      case Z:
-        zoom(app);
-        app.render();
-        break;
-      case Q:
-      case ESCAPE:
-        try {
-          BufferedWriter writer = new BufferedWriter(new FileWriter("datastore"));
-          writer.write("darkMode=" + app.darkMode + "\n");
-          writer.write("showDone=" + app.showDone + "\n");
-          writer.write("globalOffsetX=" + app.globalOffset.x + "\n");
-          writer.write("globalOffsetY=" + app.globalOffset.y + "\n");
-          if (app.selectedNode != null) {
-            String selectedFQNN = app.selectedNode.fullyQualifiedName();
-            if (selectedFQNN != null) {
-              writer.write("selectedNodeFQNN=" + selectedFQNN + "\n");
-            }
-          }
-          if (app.tree.current != null && app.tree.current != app.tree.root) {
-            String currentFQNN = app.tree.current.fullyQualifiedName();
-            if (currentFQNN != null) {
-              writer.write("currentNodeFQNN=" + currentFQNN + "\n");
-            }
-          }
-          writer.close();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-
-        if (app.tree.isModified()) {
-          Alert alert = new Alert(AlertType.CONFIRMATION,
-              "You have unsaved work. Quit anyway?",
-              ButtonType.YES, ButtonType.NO);
-          alert.setTitle("Confirmation Dialog");
-
-          Optional<ButtonType> result = alert.showAndWait();
-          if (result.isPresent() && result.get() == ButtonType.YES) {
-            System.exit(0);
-          }
-        } else {
-          System.exit(0);
-        }
         break;
       default:
-        System.out.println("Key Pressed: " + key.getCode());
         break;
+    }
+
+    boolean handled = false;
+    for (Object[] binding : bindings) {
+      if (code == (KeyCode) binding[1]) {
+        handleEvent(app, (String) binding[2]);
+        handled = true;
+      }
+    }
+
+    if (!handled) {
+      System.out.println("Key Pressed: " + key.getCode());
     }
   }
 }
