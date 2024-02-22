@@ -220,13 +220,15 @@ public class Node {
     }
 
     for (Node child : children) {
-      String[] fqnnTail = new String[fqnn.length - 1];
-      for (int i = 1; i < fqnn.length; i++) {
-        fqnnTail[i - 1] = fqnn[i];
-      }
-      Node n = child.findNode(fqnnTail);
-      if (n != null) {
-        return n;
+      if (label.equals(fqnn[0])) {
+        String[] fqnnTail = new String[fqnn.length - 1];
+        for (int i = 1; i < fqnn.length; i++) {
+          fqnnTail[i - 1] = fqnn[i];
+        }
+        Node n = child.findNode(fqnnTail);
+        if (n != null) {
+          return n;
+        }
       }
     }
 
@@ -234,8 +236,8 @@ public class Node {
   }
 
   private void drawText(App app, Vec2 extents) {
-    double x = r.x + app.padding.x;
-    double y = r.y + 3 * extents.y / 4 + app.padding.y;
+    double x = bounds.x + app.padding.x;
+    double y = bounds.y + 3 * extents.y / 4 + app.padding.y;
     Draw.text(app, label, new Vec2(x, y), app.colorScheme.textColor);
   }
 
