@@ -115,6 +115,8 @@ public class Event {
             int index = app.selectedNode.parent.children.indexOf(app.selectedNode);
             if (index < app.selectedNode.parent.children.size() - 1) {
               app.selectedNode = app.selectedNode.parent.children.get(index + 1);
+            } else {
+              app.selectedNode = app.selectedNode.parent.children.get(0);
             }
           }
         }
@@ -126,6 +128,9 @@ public class Event {
             int index = app.selectedNode.parent.children.indexOf(app.selectedNode);
             if (index > 0) {
               app.selectedNode = app.selectedNode.parent.children.get(index - 1);
+            } else {
+              app.selectedNode = app.selectedNode.parent.children.get(
+                  app.selectedNode.parent.children.size() - 1);
             }
           }
         }
