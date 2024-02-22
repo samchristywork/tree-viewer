@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Optional;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -20,24 +19,27 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 public class App extends Application {
-  ColorScheme colorScheme;
-  ColorScheme darkColorScheme = new ColorScheme();
-  ColorScheme lightColorScheme = new ColorScheme();
-  GraphicsContext gc;
-  Node nodeToReparent = null;
-  Node selectedNode = null;
-  Node targetNode = null;
-  Tree tree = new Tree();
-  Vec2 dimensions = new Vec2(1600, 800);
-  Vec2 globalOffset = new Vec2(0, 0);
-  Vec2 mouse = new Vec2(0, 0);
-  Vec2 padding = new Vec2(10, 6);
-  boolean darkMode = false;
-  boolean lmbClicked = false;
-  boolean rmbClicked = false;
-  boolean showDone = false;
-  double lineHeight = 40;
-  double size = 1;
+  private ColorScheme darkColorScheme = new ColorScheme();
+  private ColorScheme lightColorScheme = new ColorScheme();
+  private double lineHeight = 40;
+  private double spaceBetweenNodes = 50;
+  protected ColorScheme colorScheme;
+  protected GraphicsContext gc;
+  protected Node nodeToReparent = null;
+  protected Node selectedNode = null;
+  protected Node targetNode = null;
+  protected Stage stage;
+  protected Tree tree = new Tree();
+  protected Vec2 dimensions = new Vec2(1600, 800);
+  protected Vec2 globalOffset = new Vec2(0, 0);
+  protected Vec2 mouse = new Vec2(0, 0);
+  protected Vec2 padding = new Vec2(10, 6);
+  protected boolean compact = false;
+  protected boolean darkMode = false;
+  protected boolean lmbClicked = false;
+  protected boolean rmbClicked = false;
+  protected boolean showDone = false;
+  protected double size = 1;
 
   private double calculateLayout(Node n) {
     return calculateLayout(n, new Vec2(0, 0));
@@ -154,54 +156,74 @@ public class App extends Application {
     targetNode = null;
   }
 
-  public void render() {
-    gc.setFont(Font.font("Arial", 12 * size));
-    handleReparent();
-
-    // Calculate layout
-    // Node n = tree.current;
-    calculateLayout(tree.root);
-
-    // Set color scheme
+  private void setColorScheme() {
     if (darkMode) {
       colorScheme = darkColorScheme;
     } else {
       colorScheme = lightColorScheme;
     }
+  }
 
-    // Render background
+  private void renderBackground() {
     gc.clearRect(0, 0, dimensions.x, dimensions.y);
     gc.setFill(colorScheme.backgroundColor);
     gc.fillRect(0, 0, dimensions.x, dimensions.y);
+  }
 
-    // Render grid
+  private void renderGrid() {
     Grid.renderGrid(this, new Vec2(20, 20), new Vec2(100, 100),
                     colorScheme.gridColor1);
     Grid.renderGrid(this, new Vec2(100, 100), new Vec2(100, 100),
                     colorScheme.gridColor2);
+  }
 
-    // Render subtree
+  private void renderSubtree() {
     tree.sort();
     renderSubtree(tree.root);
     lmbClicked = false;
     rmbClicked = false;
+  }
 
-    // Render status text
-    gc.setFill(colorScheme.textColor);
+  private void renderStatusText() {
     int fontSize = 16;
     gc.setFont(Font.font("Arial", fontSize));
+  }
+
+  private void renderModifiedIndicator() {
 
     if (tree.isModified()) {
       gc.fillText("modified", 10, 10 + fontSize);
     }
+  }
 
-    // Render list of children
-    int i = 1;
+  private void renderChildList() {
+
+    int i = 0;
     for (Node child : selectedNode.children) {
-      double y = 10 + fontSize * 4 + i * fontSize;
-      gc.fillText("" + i + " " + child.label, 10, y);
+      double y = 10 + i * fontSize + fontSize;
+      gc.setFill(Color.GREY);
+      gc.fillText("" + (i + 1), 10, y);
+      gc.setFill(colorScheme.textColor);
+      gc.fillText("" + child.label, 30, y);
       i++;
     }
+  }
+
+  public void render() {
+    if (tree.current.isAncestor(selectedNode)) {
+      tree.current = selectedNode;
+    }
+
+    gc.setFont(Font.font("Arial", 12 * size));
+    setColorScheme();
+    handleReparent();
+    calculateLayout(tree.root);
+    renderBackground();
+    renderGrid();
+    renderSubtree();
+    renderStatusText();
+    renderModifiedIndicator();
+    renderChildList();
   }
 
   private String[] readLinesFromFile(String filename) {
@@ -218,55 +240,8 @@ public class App extends Application {
     return lines;
   }
 
-  @Override
-  public void start(Stage stage) {
-    Parameters params = getParameters();
-    List<String> unnamedParams = params.getUnnamed();
-    List<String> rawParams = params.getRaw();
-    System.out.println("Number of unnamed params: " + unnamedParams.size());
-    for (String p : unnamedParams) {
-      System.out.println("Unnamed param: " + p);
-    }
-
-    System.out.println("Number of raw params: " + rawParams.size());
-    for (String p : rawParams) {
-      System.out.println("Raw param: " + p);
-    }
-
-    ColorScheme d = darkColorScheme;
-    d.backgroundColor = Color.BLACK;
-    d.bezierColor = new Color(0.5, 0.5, 0.7, 0.5);
-    d.borderBackground = new Color(1, 1, 1, 0.05);
-    d.borderColor = new Color(0.5, 0.5, 0.5, 1);
-    d.gridColor1 = new Color(0.1, 0.1, 0.1, 1);
-    d.gridColor2 = new Color(0.2, 0.2, 0.2, 1);
-    d.nodeBackgroundColor = Color.BLACK;
-    d.nodeBorderColor = Color.GREY;
-    d.nodeCompletedColor = new Color(0.2, 0.4, 0.2, 1);
-    d.nodeHoverColor = new Color(0.2, 0.2, 0.2, 1);
-    d.nodeReparentColor = new Color(0.12, 0.22, 0.32, 1);
-    d.nodeSelectedColor = new Color(0.1, 0.2, 0.3, 1);
-    d.textColor = Color.WHITE;
-
-    ColorScheme l = lightColorScheme;
-    l.backgroundColor = Color.WHITE;
-    l.bezierColor = new Color(0.5, 0.5, 0.7, 0.5);
-    l.borderBackground = new Color(0, 0, 0, 0.05);
-    l.borderColor = Color.DARKGREY;
-    l.gridColor1 = new Color(0.9, 0.9, 0.9, 1);
-    l.gridColor2 = new Color(0.8, 0.8, 0.8, 1);
-    l.nodeBackgroundColor = Color.WHITE;
-    l.nodeBorderColor = Color.DARKGREY;
-    l.nodeCompletedColor = new Color(0.8, 0.9, 0.8, 1);
-    l.nodeHoverColor = new Color(0.95, 0.95, 0.95, 1);
-    l.nodeReparentColor = new Color(0.96, 0.88, 0.72, 1);
-    l.nodeSelectedColor = new Color(0.69, 0.85, 0.9, 1);
-    l.textColor = Color.BLACK;
-
-    tree.readFromFile("save.tree");
-
+  private void readDataStore() {
     String lines[] = readLinesFromFile("datastore");
-
     for (String line : lines) {
       String[] parts = line.split("=");
       if (parts.length == 2) {
@@ -292,24 +267,9 @@ public class App extends Application {
         }
       }
     }
+  }
 
-    if (getParameters().getRaw().size() > 0) {
-      System.out.println("args: " + getParameters().getRaw());
-      String firstArg = getParameters().getRaw().get(0);
-      if (firstArg != null) {
-        selectedNode = tree.findNode(firstArg);
-      }
-    }
-
-    if (selectedNode == null) {
-      selectedNode = tree.root;
-    }
-
-    Canvas canvas = new Canvas(dimensions.x, dimensions.y);
-    Scene scene = new Scene(new StackPane(canvas), dimensions.x, dimensions.y);
-    stage.setTitle("Tasker");
-    gc = canvas.getGraphicsContext2D();
-
+  private void addListeners(Scene scene, Canvas canvas) {
     scene.widthProperty().addListener((obs, oldVal, newVal) -> {
       dimensions.x = (double)newVal;
       canvas.setWidth(dimensions.x);
@@ -373,5 +333,7 @@ public class App extends Application {
     render();
   }
 
-  public static void main(String[] args) { launch(args); }
+  public static void main(String[] args) {
+    launch(args);
+  }
 }

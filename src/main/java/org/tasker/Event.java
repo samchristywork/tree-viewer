@@ -15,15 +15,16 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 
-class Event {
-  static String sep = "→";
+public class Event {
+  private static String sep = "→";
 
-  static Object bindings[][] = {
+  private static Object bindings[][] = {
       { "0", KeyCode.DIGIT0, "Go to root" },
       { "1-9", null, "Jump to the nth child of the current node" },
       { "Add", KeyCode.ADD, "Zoom in" },
@@ -34,6 +35,7 @@ class Event {
       { "Space", KeyCode.SPACE, "Select event dialog" },
       { "Tab", KeyCode.TAB, "Show/hide completed nodes" },
       { "A", KeyCode.A, "Select random node" },
+      { "C", KeyCode.C, "View list of changes to the tree" },
       { "H", KeyCode.H, "Move left" },
       { "J", KeyCode.J, "Move down" },
       { "K", KeyCode.K, "Move up" },
@@ -45,13 +47,15 @@ class Event {
       { "Q", KeyCode.Q, "Exit" },
       { "R", KeyCode.R, "Rename the selected node" },
       { "S", KeyCode.S, "Save the tree" },
+      { "T", KeyCode.T, "Toggle compact mode" },
       { "U", KeyCode.U, "Show usage" },
       { "X", KeyCode.X, "Delete the selected node" },
       { "Z", KeyCode.Z, "Pan to selected node" },
       { "", null, "Test" },
+      { "", null, "Toggle dark mode" },
   };
 
-  static void handleEvent(App app, String event) {
+  private static void handleEvent(App app, String event) {
     System.out.println("Event: " + event);
 
     switch (event) {
@@ -194,7 +198,7 @@ class Event {
     app.render();
   }
 
-  static void zoom(App app) {
+  protected static void zoom(App app) {
     app.render();
     app.globalOffset.x = -app.selectedNode.r.x;
     app.globalOffset.y = -app.selectedNode.r.y;
@@ -204,7 +208,7 @@ class Event {
     app.globalOffset.y -= app.selectedNode.r.h / 2;
   }
 
-  static boolean close(App app) {
+  protected static boolean close(App app) {
     try {
       BufferedWriter writer = new BufferedWriter(new FileWriter("datastore"));
       writer.write("darkMode=" + app.darkMode + "\n");
@@ -244,11 +248,11 @@ class Event {
     return false;
   }
 
-  static boolean caseInsensitiveCharMatch(char a, char b) {
+  private static boolean caseInsensitiveCharMatch(char a, char b) {
     return Character.toLowerCase(a) == Character.toLowerCase(b);
   }
 
-  static boolean filterChoices(String choice, String newV) {
+  private static boolean fuzzyMatchChoices(String choice, String newV) {
     if (newV.length() == 0) {
       return true;
     }
@@ -269,7 +273,11 @@ class Event {
     return false;
   }
 
-  static void updateChoices(TextField textField, VBox availableChoices,
+  private static boolean exactMatchChoices(String choice, String newV) {
+    return choice.toLowerCase().contains(newV.toLowerCase());
+  }
+
+  private static void updateChoices(TextField textField, VBox availableChoices,
       String[] choices, String newV) {
     availableChoices.getChildren().clear();
     for (String choice : choices) {
@@ -282,7 +290,7 @@ class Event {
     }
   }
 
-  static String showDialog(String[] choices) {
+  private static String showDialog(String[] choices, String title) {
     Dialog<String> dialog = new Dialog<>();
     dialog.setTitle("Text Update Window");
 
@@ -350,7 +358,7 @@ class Event {
     alert.showAndWait();
   }
 
-  public static void keyPressHandler(App app, KeyEvent key) {
+  protected static void keyPressHandler(App app, KeyEvent key) {
     KeyCode code = key.getCode();
 
     switch (code) {

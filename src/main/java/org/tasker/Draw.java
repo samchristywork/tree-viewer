@@ -2,9 +2,9 @@ package org.tasker;
 
 import javafx.scene.paint.Color;
 
-class Draw {
-  public static void bezier(App app, Vec2 a, Vec2 b, Vec2 c, Vec2 d, Color col,
-      double lineWidth) {
+public class Draw {
+  protected static void bezier(App app, Vec2 a, Vec2 b, Vec2 c, Vec2 d,
+                               Color col, double lineWidth) {
     double ax = a.x + app.globalOffset.x;
     double ay = a.y + app.globalOffset.y;
     double bx = b.x + app.globalOffset.x;
@@ -23,8 +23,8 @@ class Draw {
     app.gc.setLineWidth(1);
   }
 
-  public static void circle(App app, Vec2 p, double r, Color fg, Color bg,
-      double lineWidth) {
+  protected static void circle(App app, Vec2 p, double r, Color fg, Color bg,
+                               double lineWidth) {
     double px = p.x + app.globalOffset.x;
     double py = p.y + app.globalOffset.y;
 
@@ -36,7 +36,8 @@ class Draw {
     app.gc.setLineWidth(1);
   }
 
-  public static void line(App app, Vec2 a, Vec2 b, Color c, double lineWidth) {
+  protected static void line(App app, Vec2 a, Vec2 b, Color c,
+                             double lineWidth) {
     double ax = a.x + app.globalOffset.x;
     double ay = a.y + app.globalOffset.y;
     double bx = b.x + app.globalOffset.x;
@@ -48,8 +49,8 @@ class Draw {
     app.gc.setLineWidth(1);
   }
 
-  public static void rect(App app, Rect r, Color fg, Color bg,
-      double lineWidth) {
+  protected static void rect(App app, Rect r, Color fg, Color bg,
+                             double lineWidth) {
     double rx = r.x + app.globalOffset.x;
     double ry = r.y + app.globalOffset.y;
 
@@ -61,7 +62,7 @@ class Draw {
     app.gc.setLineWidth(1);
   }
 
-  public static void text(App app, String s, Vec2 p, Color c) {
+  protected static void text(App app, String s, Vec2 p, Color c) {
     double px = p.x + app.globalOffset.x;
     double py = p.y + app.globalOffset.y;
 

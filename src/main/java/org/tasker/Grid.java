@@ -2,8 +2,8 @@ package org.tasker;
 
 import javafx.scene.paint.Color;
 
-class Grid {
-  public static void renderGrid(App app, Vec2 span, Vec2 margin, Color c) {
+public class Grid {
+  protected static void renderGrid(App app, Vec2 span, Vec2 margin, Color c) {
     app.gc.setStroke(c);
 
     for (double x = app.globalOffset.x % span.x; x <= app.dimensions.x; x += span.x) {

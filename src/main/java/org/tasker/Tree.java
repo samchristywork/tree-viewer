@@ -8,17 +8,20 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import javafx.geometry.Insets;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
 
-class Tree {
-  public Node root = new Node("root", null);
-  public Node current = root;
-  String state = "";
+public class Tree {
+  protected Node root = new Node("root", null);
+  protected Node current = root;
+  private String state = "";
 
-  public void sort() {
-    root.sort();
-  }
+  protected void sort() { root.sort(); }
 
-  public boolean isModified() {
+  protected boolean isModified() {
     if (serialize().equals(state)) {
       return false;
     }
