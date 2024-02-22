@@ -211,12 +211,10 @@ public class Event {
 
   protected static void zoom(App app) {
     app.render();
-    app.globalOffset.x = -app.selectedNode.r.x;
-    app.globalOffset.y = -app.selectedNode.r.y;
-    app.globalOffset.x += app.dimensions.x / 2;
+    app.globalOffset.x = -app.selectedNode.bounds.x;
+    app.globalOffset.y = -app.selectedNode.bounds.y;
+    app.globalOffset.x += app.dimensions.x / 4;
     app.globalOffset.y += app.dimensions.y / 4;
-    app.globalOffset.x -= app.selectedNode.r.w / 2;
-    app.globalOffset.y -= app.selectedNode.r.h / 2;
   }
 
   protected static boolean close(App app) {
@@ -290,14 +288,27 @@ public class Event {
 
   private static void updateChoices(TextField textField, VBox availableChoices,
       String[] choices, String newV) {
+    ArrayList<Label> exactMatches = new ArrayList<>();
+    ArrayList<Label> fuzzyMatches = new ArrayList<>();
+
     availableChoices.getChildren().clear();
     for (String choice : choices) {
       if (choice != null) {
         String c = choice.replace("\t", sep);
-        if (filterChoices(c, newV)) {
-          availableChoices.getChildren().add(new Label(c));
+        if (exactMatchChoices(c, newV)) {
+          exactMatches.add(new Label(c));
+        } else if (fuzzyMatchChoices(c, newV)) {
+          fuzzyMatches.add(new Label(c));
         }
       }
+    }
+
+    for (Label label : exactMatches) {
+      label.setStyle("-fx-font-weight: bold;");
+      availableChoices.getChildren().add(label);
+    }
+    for (Label label : fuzzyMatches) {
+      availableChoices.getChildren().add(label);
     }
   }
 
