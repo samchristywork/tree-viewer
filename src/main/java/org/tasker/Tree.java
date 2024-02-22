@@ -29,7 +29,70 @@ public class Tree {
     return true;
   }
 
-  public void writeToFile(String filename, String backup) throws IOException {
+  private static void changesDialog(ArrayList<String> addedLines,
+                                    ArrayList<String> removedLines) {
+    Dialog<String> dialog = new Dialog<>();
+    dialog.setTitle("Changes");
+
+    VBox added = new VBox();
+    VBox removed = new VBox();
+
+    String sep = "→";
+    for (String line : addedLines) {
+      String l = line.replace("\t", sep);
+      added.getChildren().add(new Label(l));
+    }
+
+    for (String line : removedLines) {
+      String l = line.replace("\t", sep);
+      removed.getChildren().add(new Label(l));
+    }
+
+    if (addedLines.size() == 0) {
+      added.getChildren().add(new Label("None"));
+    }
+
+    if (removedLines.size() == 0) {
+      removed.getChildren().add(new Label("None"));
+    }
+
+    VBox vBox = new VBox(10, new Label("Added:"), added, new Label("Removed:"),
+                         removed);
+    vBox.setPadding(new Insets(20, 20, 20, 20));
+    vBox.getChildren().get(0).setStyle("-fx-font-weight: bold;");
+    vBox.getChildren().get(2).setStyle("-fx-font-weight: bold;");
+
+    dialog.getDialogPane().setContent(vBox);
+
+    ButtonType buttonTypeOk = new ButtonType("OK");
+    dialog.getDialogPane().getButtonTypes().add(buttonTypeOk);
+    dialog.showAndWait();
+  }
+
+  protected void viewChanges() {
+    String s = serialize();
+    String[] lines = s.split("\n");
+    ArrayList<String> added = new ArrayList<String>();
+    ArrayList<String> removed = new ArrayList<String>();
+
+    for (String line : lines) {
+      if (state.indexOf(line) == -1) {
+        added.add(line);
+      }
+    }
+
+    lines = state.split("\n");
+    for (String line : lines) {
+      if (s.indexOf(line) == -1) {
+        removed.add(line);
+      }
+    }
+
+    changesDialog(added, removed);
+  }
+
+  protected void writeToFile(String filename, String backup)
+      throws IOException {
     String s = serialize();
 
     {
