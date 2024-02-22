@@ -184,9 +184,12 @@ public class Node {
     Platform.runLater(new Runnable() {
       @Override
       public void run() {
-        String filename = attributes.get("file");
-        if (filename == null) {
-          filename = "files/" + label + ".md";
+        String filename = "files/" + label + ".md";
+        try {
+          String[] cmd = {"st", "-e", "nvim", filename};
+          Runtime.getRuntime().exec(cmd);
+        } catch (Exception e) {
+          e.printStackTrace();
         }
 
         app.render();
