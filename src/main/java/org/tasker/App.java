@@ -54,16 +54,22 @@ public class App extends Application {
     n.extents.y = text.getLayoutBounds().getHeight();
 
     double height = 0;
-    double width = n.extents.x + padding.x * 2 + 30;
+    double width = n.extents.x + padding.x * 2 + spaceBetweenNodes;
 
-    n.r.x = offset.x;
-    n.r.y = offset.y * lineHeight;
-    n.r.w = n.extents.x + padding.x * 2;
-    n.r.h = n.extents.y + padding.y * 2;
+    n.bounds.x = offset.x;
+    n.bounds.y = offset.y * lineHeight * size;
+    n.bounds.w = n.extents.x + padding.x * 2;
+    n.bounds.h = n.extents.y + padding.y * 2;
+
+    if (compact) {
+      n.bounds.y = offset.y * 17;
+      n.bounds.h = 16;
+      padding.y = 0;
+    }
 
     if (n == nodeToReparent) {
-      n.r.x = -globalOffset.x + mouse.x - n.r.w / 2;
-      n.r.y = -globalOffset.y + mouse.y - n.r.h / 2;
+      n.bounds.x = -globalOffset.x + mouse.x - n.bounds.w / 2;
+      n.bounds.y = -globalOffset.y + mouse.y - n.bounds.h / 2;
     }
 
     if (n.children.size() == 0) {
@@ -186,17 +192,26 @@ public class App extends Application {
 
   private void renderStatusText() {
     int fontSize = 16;
+
+    String statusline = String.format("Pan=(%.0f, %.0f)", globalOffset.x, globalOffset.y);
+    statusline += String.format(" Mouse=(%.0f, %.0f)", mouse.x, mouse.y);
+    statusline += String.format(" Dimensions=(%.0f, %.0f)", dimensions.x, dimensions.y);
+
+    gc.setFill(colorScheme.textColor);
     gc.setFont(Font.font("Arial", fontSize));
+    gc.fillText(statusline, 10, dimensions.y - 10);
   }
 
   private void renderModifiedIndicator() {
+    double fontSize = gc.getFont().getSize();
 
     if (tree.isModified()) {
-      gc.fillText("modified", 10, 10 + fontSize);
+      gc.fillText("Modified", dimensions.x - 80, 10 + fontSize);
     }
   }
 
   private void renderChildList() {
+    double fontSize = gc.getFont().getSize();
 
     int i = 0;
     for (Node child : selectedNode.children) {
@@ -326,6 +341,49 @@ public class App extends Application {
         e.consume();
       }
     });
+  }
+
+  @Override
+  public void start(Stage stage) {
+    this.stage = stage;
+    Parameters params = getParameters();
+    List<String> unnamedParams = params.getUnnamed();
+    List<String> rawParams = params.getRaw();
+    System.out.println("Number of unnamed params: " + unnamedParams.size());
+    for (String p : unnamedParams) {
+      System.out.println("Unnamed param: " + p);
+    }
+
+    System.out.println("Number of raw params: " + rawParams.size());
+    for (String p : rawParams) {
+      System.out.println("Raw param: " + p);
+    }
+
+    darkColorScheme.initializeDark();
+    lightColorScheme.initializeLight();
+
+    tree.readFromFile("save.tree");
+
+    readDataStore();
+
+    if (getParameters().getRaw().size() > 0) {
+      System.out.println("args: " + getParameters().getRaw());
+      String firstArg = getParameters().getRaw().get(0);
+      if (firstArg != null) {
+        selectedNode = tree.findNode(firstArg);
+      }
+    }
+
+    if (selectedNode == null) {
+      selectedNode = tree.root;
+    }
+
+    Canvas canvas = new Canvas(dimensions.x, dimensions.y);
+    Scene scene = new Scene(new StackPane(canvas), dimensions.x, dimensions.y);
+    stage.setTitle("Tasker");
+    gc = canvas.getGraphicsContext2D();
+
+    addListeners(scene, canvas);
 
     stage.setScene(scene);
     stage.show();
