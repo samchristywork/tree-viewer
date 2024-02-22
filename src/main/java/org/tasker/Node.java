@@ -1,37 +1,28 @@
 package org.tasker;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import javafx.application.Platform;
 import javafx.scene.control.TextInputDialog;
 
-class Node {
-  ArrayList<Node> children = new ArrayList<Node>();
-  Node parent;
-  Rect r = new Rect(0, 0, 0, 0); // TODO: Rename this
-  String label;
-  Vec2 extents = new Vec2(0, 0);
-  Vec2 leftNode;
-  Vec2 rightNode;
-  boolean collapsed = false;
-  boolean rightClicked = false;
-  boolean show = true;
+public class Node {
   private HashMap<String, String> attributes = new HashMap<String, String>();
+  protected ArrayList<Node> children = new ArrayList<Node>();
+  protected Node parent;
+  protected Rect bounds = new Rect(0, 0, 0, 0);
+  protected String label;
+  protected Vec2 extents = new Vec2(0, 0);
+  protected boolean show = true;
 
-  Node(String label, Node parent) {
+  protected Node(String label, Node parent) {
     this.label = label;
     this.parent = parent;
   }
 
-  Node(String label) {
-    this.label = label;
-  }
+  protected Node(String label) { this.label = label; }
 
-  public ArrayList<String> getFQNNs() {
+  protected ArrayList<String> getFQNNs() {
     ArrayList<String> fqnns = new ArrayList<String>();
     fqnns.add(fullyQualifiedName());
     for (Node child : children) {
@@ -43,7 +34,7 @@ class Node {
     return fqnns;
   }
 
-  public void sort() {
+  protected void sort() {
     Collections.sort(children, (a, b) -> {
       boolean aDone = a.checkAttr("status", "done");
       boolean bDone = b.checkAttr("status", "done");
@@ -62,11 +53,11 @@ class Node {
     }
   }
 
-  public boolean checkAttr(String key, String value) {
+  protected boolean checkAttr(String key, String value) {
     return attributes.containsKey(key) && attributes.get(key).equals(value);
   }
 
-  public String fullyQualifiedName() {
+  protected String fullyQualifiedName() {
     if (parent == null) {
       return null;
     } else {
@@ -78,18 +69,18 @@ class Node {
     }
   }
 
-  public void setAttributes(HashMap<String, String> attributes) {
+  protected void setAttributes(HashMap<String, String> attributes) {
     this.attributes = attributes;
   }
 
-  public Node addChild(String label) {
+  protected Node addChild(String label) {
     Node child = new Node(label, this);
     children.add(child);
 
     return child;
   }
 
-  public ArrayList<Node> getNodes() {
+  protected ArrayList<Node> getNodes() {
     ArrayList<Node> nodes = new ArrayList<Node>();
     nodes.add(this);
     for (Node child : children) {
@@ -101,7 +92,7 @@ class Node {
     return nodes;
   }
 
-  public Node findChild(String label) {
+  protected Node findChild(String label) {
     for (Node child : children) {
       if (child.label.equals(label)) {
         return child;
@@ -110,7 +101,7 @@ class Node {
     return null;
   }
 
-  public Node insert(String label) {
+  protected Node insert(String label) {
     Node n = new Node(this.label, this);
     n.children = this.children;
     children = new ArrayList<Node>();
@@ -124,15 +115,13 @@ class Node {
     return n;
   }
 
-  public void putAttr(String key, String value) {
+  protected void putAttr(String key, String value) {
     attributes.put(key, value);
   }
 
-  public void removeAttr(String key) {
-    attributes.remove(key);
-  }
+  protected void removeAttr(String key) { attributes.remove(key); }
 
-  public String serialize() {
+  protected String serialize() {
     String s = fullyQualifiedName();
 
     for (String key : attributes.keySet()) {
@@ -147,7 +136,7 @@ class Node {
     return s;
   }
 
-  public void addNode(App app) {
+  protected void addNode(App app) {
     Platform.runLater(new Runnable() {
       @Override
       public void run() {
@@ -169,7 +158,7 @@ class Node {
     });
   }
 
-  public void rename(App app) {
+  protected void rename(App app) {
     Platform.runLater(new Runnable() {
       @Override
       public void run() {
@@ -191,7 +180,7 @@ class Node {
     });
   }
 
-  public void openFile(App app) {
+  protected void openFile(App app) {
     Platform.runLater(new Runnable() {
       @Override
       public void run() {
@@ -200,42 +189,13 @@ class Node {
           filename = "files/" + label + ".md";
         }
 
-        TextInputDialog dialog = new TextInputDialog(filename);
-        dialog.setTitle("Open File");
-        dialog.setContentText("Name:");
-        dialog.showAndWait().ifPresent(name -> {
-          Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-              String filename = name;
+        app.render();
 
-              Path path = Paths.get(filename);
-              if (!Files.exists(path)) {
-                try {
-                  Files.createFile(path);
-                } catch (Exception e) {
-                  e.printStackTrace();
-                }
-              }
-
-              attributes.put("file", filename);
-
-              try {
-                String[] cmd = { "st", "-e", "nvim", filename };
-                Runtime.getRuntime().exec(cmd);
-              } catch (Exception e) {
-                e.printStackTrace();
-              }
-
-              app.render();
-            }
-          });
-        });
       }
     });
   }
 
-  public boolean isAncestor(Node node) {
+  protected boolean isAncestor(Node node) {
     if (parent == node) {
       return true;
     }
@@ -245,8 +205,7 @@ class Node {
     return parent.isAncestor(node);
   }
 
-  // TODO: Inefficient
-  public Node findNode(String[] fqnn) {
+  protected Node findNode(String[] fqnn) {
     if (fqnn.length == 0) {
       return null;
     }
@@ -312,19 +271,19 @@ class Node {
     }
   }
 
-  public Vec2 getRightNode() {
-    return new Vec2(r.x + r.w, r.y + r.h / 2);
+  protected Vec2 getRightNode() {
+    return new Vec2(bounds.x + bounds.w, bounds.y + bounds.h / 2);
   }
 
-  public Vec2 getLeftNode() {
-    return new Vec2(r.x, r.y + r.h / 2);
+  protected Vec2 getLeftNode() {
+    return new Vec2(bounds.x, bounds.y + bounds.h / 2);
   }
 
-  public Rect getSubtreeRect() {
-    double x = r.x;
-    double y = r.y;
-    double w = r.w;
-    double h = r.h;
+  protected Rect getSubtreeRect() {
+    double x = bounds.x;
+    double y = bounds.y;
+    double w = bounds.w;
+    double h = bounds.h;
 
     for (Node child : children) {
       if (!child.show) {
@@ -349,8 +308,8 @@ class Node {
     return new Rect(x, y, w, h);
   }
 
-  public void draw(App app) {
-    drawRect(app, this, new Vec2(r.x, r.y), extents, r);
+  protected void draw(App app) {
+    drawRect(app, this, new Vec2(bounds.x, bounds.y), extents, bounds);
     drawText(app, extents);
   }
 }

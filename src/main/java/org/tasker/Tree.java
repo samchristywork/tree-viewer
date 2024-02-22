@@ -110,12 +110,7 @@ public class Tree {
     state = s;
   }
 
-  public String[] getFQNNs() {
-    ArrayList<String> fqnns = root.getFQNNs();
-    return fqnns.toArray(new String[0]);
-  }
-
-  public String serialize() {
+  private String serialize() {
     String s = "";
     for (Node child : root.children) {
       s += child.serialize();
@@ -134,7 +129,7 @@ public class Tree {
     return lines;
   }
 
-  public void readFromFile(String filename) {
+  protected void readFromFile(String filename) {
     String[] lines = readLinesFromFile(filename);
 
     for (String line : lines) {
@@ -176,14 +171,14 @@ public class Tree {
     state = serialize();
   }
 
-  public Node randomNode() {
+  protected Node randomNode() {
     ArrayList<Node> nodes = root.getNodes();
     int n = nodes.size();
-    int i = (int) (Math.random() * n);
+    int i = (int)(Math.random() * n);
     return nodes.get(i);
   }
 
-  public Node findNode(String fqnn) {
+  protected Node findNode(String fqnn) {
     String fqnnParts[] = fqnn.split("	");
     for (Node child : root.children) {
       Node n = child.findNode(fqnnParts);
@@ -195,7 +190,7 @@ public class Tree {
     return null;
   }
 
-  public void deleteNode(Node n) {
+  protected void deleteNode(Node n) {
     if (n.parent != null) {
       n.parent.children.remove(n);
 
@@ -215,7 +210,7 @@ public class Tree {
     }
   }
 
-  public void test() {
+  protected void test() {
     Node n = root;
     System.out.println("Testing tree");
     test(n);
