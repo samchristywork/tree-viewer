@@ -77,7 +77,7 @@ public class Event {
         ArrayList<String> nodeArray = app.tree.current.getFQNNs();
         String[] nodes = new String[nodeArray.size()];
         nodes = nodeArray.toArray(nodes);
-        String fqnn = showDialog(nodes);
+        String fqnn = showDialog(nodes, "Find Node");
         Node n = app.tree.findNode(fqnn);
         if (n != null) {
           app.selectedNode = n;
@@ -161,7 +161,7 @@ public class Event {
         for (int i = 0; i < bindings.length; i++) {
           commands[i] = (String) bindings[i][2];
         }
-        String command = showDialog(commands);
+        String command = showDialog(commands, "Run Command");
         handleEvent(app, command);
         break;
       case "Select random node":
@@ -178,11 +178,17 @@ public class Event {
       case "Test":
         app.tree.test();
         break;
+      case "Toggle compact mode":
+        app.compact = !app.compact;
+        break;
       case "Toggle dark mode":
         app.darkMode = !app.darkMode;
         break;
       case "Show/hide completed nodes":
         app.showDone = !app.showDone;
+        break;
+      case "View list of changes to the tree":
+        app.tree.viewChanges();
         break;
       case "Zoom in":
         app.size *= 1.1;
@@ -292,7 +298,7 @@ public class Event {
 
   private static String showDialog(String[] choices, String title) {
     Dialog<String> dialog = new Dialog<>();
-    dialog.setTitle("Text Update Window");
+    dialog.setTitle(title);
 
     TextField textField = new TextField();
     VBox availableChoices = new VBox();
