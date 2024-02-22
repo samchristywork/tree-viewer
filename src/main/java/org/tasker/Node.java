@@ -263,16 +263,19 @@ public class Node {
       }
     } else if (n == app.nodeToReparent) {
       Draw.rect(app, r, app.colorScheme.nodeBorderColor,
-          app.colorScheme.nodeReparentColor, 1);
+                app.colorScheme.nodeReparentColor, 1);
+    } else if (n == app.selectedNode && n.checkAttr("status", "done")) {
+      Draw.rect(app, r, app.colorScheme.nodeBorderColor,
+                app.colorScheme.nodeSelectedCompletedColor, 1);
     } else if (n == app.selectedNode) {
       Draw.rect(app, r, app.colorScheme.nodeBorderColor,
-          app.colorScheme.nodeSelectedColor, 1);
+                app.colorScheme.nodeSelectedColor, 1);
     } else if (n.checkAttr("status", "done")) {
       Draw.rect(app, r, app.colorScheme.nodeBorderColor,
-          app.colorScheme.nodeCompletedColor, 1);
+                app.colorScheme.nodeCompletedColor, 1);
     } else {
       Draw.rect(app, r, app.colorScheme.nodeBorderColor,
-          app.colorScheme.nodeBackgroundColor, 1);
+                app.colorScheme.nodeBackgroundColor, 1);
     }
   }
 
