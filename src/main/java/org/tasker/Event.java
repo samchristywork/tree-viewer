@@ -156,7 +156,9 @@ public class Event {
       case "Save the tree":
         try {
           String dateTime = LocalDateTime.now().toString();
-          app.tree.writeToFile("save.tree", "backups/" + dateTime + ".tree");
+          app.tree.writeToFile(app.workingDirectory + "/save.tree",
+              app.workingDirectory + "/backups/" + dateTime +
+                  ".tree");
         } catch (IOException e) {
           e.printStackTrace();
         }
@@ -219,7 +221,8 @@ public class Event {
 
   protected static boolean close(App app) {
     try {
-      BufferedWriter writer = new BufferedWriter(new FileWriter("datastore"));
+      BufferedWriter writer = new BufferedWriter(
+          new FileWriter(app.workingDirectory + "/datastore"));
       writer.write("darkMode=" + app.darkMode + "\n");
       writer.write("showDone=" + app.showDone + "\n");
       writer.write("globalOffsetX=" + app.globalOffset.x + "\n");

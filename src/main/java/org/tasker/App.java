@@ -30,6 +30,7 @@ public class App extends Application {
   protected Node targetNode = null;
   protected Stage stage;
   protected Tree tree = new Tree();
+  protected String workingDirectory = "./";
   protected Vec2 dimensions = new Vec2(1600, 800);
   protected Vec2 globalOffset = new Vec2(0, 0);
   protected Vec2 mouse = new Vec2(0, 0);
@@ -256,7 +257,7 @@ public class App extends Application {
   }
 
   private void readDataStore() {
-    String lines[] = readLinesFromFile("datastore");
+    String lines[] = readLinesFromFile(workingDirectory + "/datastore");
     for (String line : lines) {
       String[] parts = line.split("=");
       if (parts.length == 2) {

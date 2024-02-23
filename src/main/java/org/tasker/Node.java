@@ -184,7 +184,7 @@ public class Node {
     Platform.runLater(new Runnable() {
       @Override
       public void run() {
-        String filename = "files/" + label + ".md";
+        String filename = app.workingDirectory + "/files/" + label + ".md";
         try {
           String[] cmd = {"st", "-e", "nvim", filename};
           Runtime.getRuntime().exec(cmd);
