@@ -32,8 +32,8 @@ public class App extends Application {
   protected Node selectedNode = null;
   protected Node targetNode = null;
   protected Stage stage;
-  protected Tree tree = new Tree();
   protected String workingDirectory = "./";
+  protected Tree tree = null;
   protected Vec2 dimensions = new Vec2(1600, 800);
   protected Vec2 globalOffset = new Vec2(0, 0);
   protected Vec2 mouse = new Vec2(0, 0);
@@ -122,12 +122,12 @@ public class App extends Application {
         Vec2 a = n.getRightNode();
         Vec2 b = child.getLeftNode();
         Draw.circle(this, a, 3, colorScheme.nodeBorderColor,
-                    colorScheme.bezierColor, 1);
+                    colorScheme.bezierNodeColor, 1);
         Draw.circle(this, b, 3, colorScheme.nodeBorderColor,
-                    colorScheme.bezierColor, 1);
+                    colorScheme.bezierNodeColor, 1);
         Draw.bezier(this, a, new Vec2((a.x + b.x) / 2, a.y),
-                    new Vec2((a.x + b.x) / 2, b.y), b, colorScheme.bezierColor,
-                    2);
+                    new Vec2((a.x + b.x) / 2, b.y), b,
+                    colorScheme.bezierCurveColor, 2);
 
         renderSubtree(child);
       }
@@ -197,9 +197,11 @@ public class App extends Application {
   private void renderStatusText() {
     int fontSize = 16;
 
-    String statusline = String.format("Pan=(%.0f, %.0f)", globalOffset.x, globalOffset.y);
+    String statusline =
+        String.format("Pan=(%.0f, %.0f)", globalOffset.x, globalOffset.y);
     statusline += String.format(" Mouse=(%.0f, %.0f)", mouse.x, mouse.y);
-    statusline += String.format(" Dimensions=(%.0f, %.0f)", dimensions.x, dimensions.y);
+    statusline +=
+        String.format(" Dimensions=(%.0f, %.0f)", dimensions.x, dimensions.y);
 
     gc.setFill(colorScheme.textColor);
     gc.setFont(Font.font("Arial", fontSize));
@@ -228,9 +230,30 @@ public class App extends Application {
     }
   }
 
-  public void render() {
-    if (tree.current.isAncestor(selectedNode)) {
-      tree.current = selectedNode;
+  private void renderFilePreview() {
+    if (selectedNode == null) {
+      return;
+    }
+
+    String[] lines = readLinesFromFile(workingDirectory + "/files/" +
+                                       selectedNode.label + ".md");
+    double fontSize = gc.getFont().getSize();
+
+    double y = 2 * fontSize;
+    for (int i = 0; i < lines.length; i++) {
+      String line = lines[i].replace("[ ]", "☐").replace("[x]", "☑");
+      y += fontSize;
+      gc.setFill(colorScheme.textColor);
+
+      if (line.length() > 0 && line.charAt(0) == '#') {
+        y += fontSize;
+        gc.setFont(Font.font("Arial", 24));
+        gc.fillText(line, dimensions.x - 300, y);
+        gc.setFont(Font.font("Arial", 12));
+        y += fontSize / 2;
+      } else {
+        gc.fillText(line, dimensions.x - 300, y);
+      }
     }
   }
 
