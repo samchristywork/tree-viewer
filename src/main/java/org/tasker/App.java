@@ -19,8 +19,11 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 public class App extends Application {
+  private Canvas canvas;
   private ColorScheme darkColorScheme = new ColorScheme();
   private ColorScheme lightColorScheme = new ColorScheme();
+  private Scene scene;
+  private String[] vaults = {"./", "foo/", "bar/"};
   private double lineHeight = 40;
   private double spaceBetweenNodes = 50;
   protected ColorScheme colorScheme;
@@ -229,17 +232,45 @@ public class App extends Application {
     if (tree.current.isAncestor(selectedNode)) {
       tree.current = selectedNode;
     }
+  }
 
-    gc.setFont(Font.font("Arial", 12 * size));
-    setColorScheme();
-    handleReparent();
-    calculateLayout(tree.root);
-    renderBackground();
-    renderGrid();
-    renderSubtree();
-    renderStatusText();
-    renderModifiedIndicator();
-    renderChildList();
+  public void render() {
+    if (tree == null) {
+      setColorScheme();
+      renderBackground();
+      renderGrid();
+      renderStatusText();
+
+      int i = 1;
+      for (String vault : vaults) {
+        double offset = 10 + i * 16;
+        gc.setFill(Color.GREY);
+        gc.fillText("" + i, 10, offset);
+        gc.setFill(colorScheme.textColor);
+        gc.fillText(vault, 30, offset);
+        i++;
+      }
+    } else {
+      if (selectedNode == null) {
+        selectedNode = tree.root;
+      }
+
+      if (tree.current.isAncestor(selectedNode)) {
+        tree.current = selectedNode;
+      }
+
+      gc.setFont(Font.font("Arial", 12 * size));
+      setColorScheme();
+      handleReparent();
+      calculateLayout(tree.root);
+      renderBackground();
+      renderGrid();
+      renderSubtree();
+      renderStatusText();
+      renderModifiedIndicator();
+      renderChildList();
+      renderFilePreview();
+    }
   }
 
   private String[] readLinesFromFile(String filename) {
@@ -286,18 +317,6 @@ public class App extends Application {
   }
 
   private void addListeners(Scene scene, Canvas canvas) {
-    scene.widthProperty().addListener((obs, oldVal, newVal) -> {
-      dimensions.x = (double)newVal;
-      canvas.setWidth(dimensions.x);
-      render();
-    });
-
-    scene.heightProperty().addListener((obs, oldVal, newVal) -> {
-      dimensions.y = (double)newVal;
-      canvas.setHeight(dimensions.y);
-      render();
-    });
-
     scene.addEventHandler(KeyEvent.KEY_PRESSED,
                           (key) -> { Event.keyPressHandler(this, key); });
 
@@ -334,14 +353,14 @@ public class App extends Application {
 
       render();
     });
+  }
 
-    stage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, (e) -> {
-      if (Event.close(this)) {
-        System.exit(0);
-      } else {
-        e.consume();
-      }
-    });
+  private void setup() {
+    tree = new Tree();
+    tree.readFromFile(workingDirectory + "/save.tree");
+    readDataStore();
+    addListeners(scene, canvas);
+    render();
   }
 
   @Override
@@ -363,28 +382,54 @@ public class App extends Application {
     darkColorScheme.initializeDark();
     lightColorScheme.initializeLight();
 
-    tree.readFromFile("save.tree");
 
-    readDataStore();
-
-    if (getParameters().getRaw().size() > 0) {
-      System.out.println("args: " + getParameters().getRaw());
-      String firstArg = getParameters().getRaw().get(0);
-      if (firstArg != null) {
-        selectedNode = tree.findNode(firstArg);
-      }
-    }
-
-    if (selectedNode == null) {
-      selectedNode = tree.root;
-    }
-
-    Canvas canvas = new Canvas(dimensions.x, dimensions.y);
-    Scene scene = new Scene(new StackPane(canvas), dimensions.x, dimensions.y);
+    canvas = new Canvas(dimensions.x, dimensions.y);
+    scene = new Scene(new StackPane(canvas), dimensions.x, dimensions.y);
     stage.setTitle("Tasker");
     gc = canvas.getGraphicsContext2D();
 
-    addListeners(scene, canvas);
+    scene.widthProperty().addListener((obs, oldVal, newVal) -> {
+      dimensions.x = (double)newVal;
+      canvas.setWidth(dimensions.x);
+      render();
+    });
+
+    scene.heightProperty().addListener((obs, oldVal, newVal) -> {
+      dimensions.y = (double)newVal;
+      canvas.setHeight(dimensions.y);
+      render();
+    });
+
+    stage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, (e) -> {
+      if (Event.close(this)) {
+        System.exit(0);
+      } else {
+        e.consume();
+      }
+    });
+
+    scene.addEventHandler(KeyEvent.KEY_PRESSED, (key) -> {
+      System.out.println("key: " + key.getCode());
+      if (tree == null) {
+        switch (key.getCode()) {
+        case DIGIT1:
+          workingDirectory = vaults[0];
+          setup();
+          break;
+        case DIGIT2:
+          workingDirectory = vaults[1];
+          setup();
+          break;
+        case DIGIT3:
+          workingDirectory = vaults[2];
+          setup();
+          break;
+        default:
+          break;
+        }
+        key.consume();
+      }
+    });
 
     stage.setScene(scene);
     stage.show();
@@ -392,7 +437,5 @@ public class App extends Application {
     render();
   }
 
-  public static void main(String[] args) {
-    launch(args);
-  }
+  public static void main(String[] args) { launch(args); }
 }
