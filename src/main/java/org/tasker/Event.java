@@ -222,6 +222,10 @@ public class Event {
   }
 
   protected static boolean close(App app) {
+    if (app.tree == null) {
+      return true;
+    }
+
     try {
       BufferedWriter writer = new BufferedWriter(
           new FileWriter(app.workingDirectory + "/datastore"));
@@ -386,6 +390,10 @@ public class Event {
   }
 
   protected static void keyPressHandler(App app, KeyEvent key) {
+    if (app.tree == null) {
+      return;
+    }
+
     KeyCode code = key.getCode();
 
     switch (code) {
@@ -398,6 +406,9 @@ public class Event {
       case DIGIT7:
       case DIGIT8:
       case DIGIT9:
+        if (app.selectedNode == null) {
+          break;
+        }
         int index = code.ordinal() - 25;
         if (app.selectedNode.children.size() > index) {
           app.selectedNode = app.selectedNode.children.get(index);
