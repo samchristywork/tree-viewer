@@ -100,6 +100,8 @@ public class Event {
         } else {
           app.selectedNode.putAttr("status", "done");
         }
+        app.render();
+        zoom(app);
         break;
       case "Move left":
         if (app.selectedNode != null) {
