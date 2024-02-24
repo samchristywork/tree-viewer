@@ -427,7 +427,7 @@ public class App extends Application {
 
   private void setup() {
     tree = new Tree();
-    tree.readFromFile(workingDirectory + "/save.tree");
+    tree.readFromYMLFile(workingDirectory + "/nodes.yml");
     readDataStore();
     state = State.TREE_VIEW;
     render();
