@@ -131,6 +131,41 @@ public class Tree {
     return lines;
   }
 
+  protected void readFromYMLFile(String filename) {
+    String[] lines = readLinesFromFile(filename);
+
+    Node n = root;
+    int depth = 0;
+    for (String line : lines) {
+      String[] parts = line.split(":");
+      String attributes = "";
+      if (parts.length == 2) {
+        attributes = parts[1];
+      }
+      String label = parts[0].strip().replace("\"", "");
+      int d = (line.length() - line.stripLeading().length()) / 2;
+      if (d == depth) {
+        n.children.add(new Node(label, n, attributes));
+      } else if (d == depth + 1) {
+        n = n.children.get(n.children.size() - 1);
+        n.children.add(new Node(label, n, attributes));
+        depth++;
+      } else if (d < depth) {
+        for (int i = 0; i < depth - d; i++) {
+          n = n.parent;
+        }
+        if (n == null) {
+          n = root;
+        }
+        n.children.add(new Node(label, n, attributes));
+        depth = d;
+      }
+    }
+
+    state = serializeYML();
+    fullyQualifiedState = serialize();
+  }
+
   protected void readFromFile(String filename) {
     String[] lines = readLinesFromFile(filename);
 
