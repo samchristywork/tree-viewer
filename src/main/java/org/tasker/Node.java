@@ -155,6 +155,26 @@ public class Node {
     return s;
   }
 
+  protected String serializeYML(int depth) {
+    String s = "";
+    for (int i = 0; i < depth; i++) {
+      s += "  ";
+    }
+    s += "\"" + label + "\":";
+
+    for (String key : attributes.keySet()) {
+      s += "#" + key + "=" + attributes.get(key) + ";";
+    }
+
+    s += "\n";
+
+    for (Node child : children) {
+      s += child.serializeYML(depth + 1);
+    }
+
+    return s;
+  }
+
   protected void addNode(App app) {
     Platform.runLater(new Runnable() {
       @Override
