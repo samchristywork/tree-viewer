@@ -174,48 +174,6 @@ public class Tree {
     fullyQualifiedState = serialize();
   }
 
-  protected void readFromFile(String filename) {
-    String[] lines = readLinesFromFile(filename);
-
-    for (String line : lines) {
-      Node n = root;
-
-      String parts[] = line.split("#");
-      String fqnn = parts[0];
-
-      HashMap<String, String> attributes = new HashMap<String, String>();
-
-      // Parse attributes
-      if (parts.length == 2) {
-        attributes = new HashMap<String, String>();
-        String[] attribs = parts[1].split(";");
-        for (String attribute : attribs) {
-          String[] kv = attribute.split("=");
-          attributes.put(kv[0], kv[1]);
-        }
-      }
-
-      // Parse fully qualified node name
-      String[] fields = fqnn.split("	");
-
-      for (int i = 0; i < fields.length; i++) {
-        String field = fields[i];
-        Node child = n.findChild(field);
-        if (child == null) {
-          Node c = n.addChild(field);
-          c.setAttributes(attributes);
-        } else {
-          if (i == fields.length - 1) {
-            child.setAttributes(attributes);
-          }
-        }
-        n = child;
-      }
-    }
-
-    state = serialize();
-  }
-
   protected Node randomNode() {
     ArrayList<Node> nodes = root.getNodes();
     int n = nodes.size();
