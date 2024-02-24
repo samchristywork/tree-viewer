@@ -439,6 +439,11 @@ public class App extends Application {
     scene.addEventHandler(KeyEvent.KEY_PRESSED, (key) -> {
       if (state == State.TREE_SELECTION) {
         switch (key.getCode()) {
+        case ESCAPE:
+          if (Event.close(this)) {
+            System.exit(0);
+          }
+          break;
         case DIGIT1:
           workingDirectory = vaults[0];
           setup();
