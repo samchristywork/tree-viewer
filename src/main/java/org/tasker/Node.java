@@ -193,7 +193,6 @@ public class Node {
         }
 
         app.render();
-
       }
     });
   }

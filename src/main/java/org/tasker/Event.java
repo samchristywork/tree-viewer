@@ -371,6 +371,7 @@ public class Event {
     ButtonType buttonTypeOk = new ButtonType("OK");
     dialog.getDialogPane().getButtonTypes().add(buttonTypeOk);
     dialog.setOnShown(e -> textField.requestFocus());
+    dialog.getDialogPane().setPrefHeight(700);
     dialog.showAndWait();
 
     return textField.getText().replace(sep, "\t");

@@ -19,7 +19,9 @@ public class Tree {
   protected Node current = root;
   private String state = "";
 
-  protected void sort() { root.sort(); }
+  protected void sort() {
+    root.sort();
+  }
 
   protected boolean isModified() {
     if (serialize().equals(state)) {
@@ -30,7 +32,7 @@ public class Tree {
   }
 
   private static void changesDialog(ArrayList<String> addedLines,
-                                    ArrayList<String> removedLines) {
+      ArrayList<String> removedLines) {
     Dialog<String> dialog = new Dialog<>();
     dialog.setTitle("Changes");
 
@@ -57,7 +59,7 @@ public class Tree {
     }
 
     VBox vBox = new VBox(10, new Label("Added:"), added, new Label("Removed:"),
-                         removed);
+        removed);
     vBox.setPadding(new Insets(20, 20, 20, 20));
     vBox.getChildren().get(0).setStyle("-fx-font-weight: bold;");
     vBox.getChildren().get(2).setStyle("-fx-font-weight: bold;");
@@ -174,7 +176,7 @@ public class Tree {
   protected Node randomNode() {
     ArrayList<Node> nodes = root.getNodes();
     int n = nodes.size();
-    int i = (int)(Math.random() * n);
+    int i = (int) (Math.random() * n);
     return nodes.get(i);
   }
 
