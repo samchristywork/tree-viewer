@@ -326,7 +326,9 @@ public class Event {
     dialog.setTitle(title);
 
     TextField textField = new TextField();
+    ScrollPane scrollPane = new ScrollPane();
     VBox availableChoices = new VBox();
+    scrollPane.setContent(availableChoices);
 
     textField.textProperty().addListener(new ChangeListener<String>() {
       @Override
@@ -362,7 +364,7 @@ public class Event {
       dialog.close();
     });
 
-    VBox vBox = new VBox(10, textField, availableChoices);
+    VBox vBox = new VBox(10, textField, scrollPane);
     vBox.setPadding(new Insets(20, 20, 20, 20));
     dialog.getDialogPane().setContent(vBox);
 
