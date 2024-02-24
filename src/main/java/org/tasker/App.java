@@ -39,7 +39,7 @@ public class App extends Application {
   protected Vec2 mouse = new Vec2(0, 0);
   protected Vec2 padding = new Vec2(10, 6);
   protected boolean compact = false;
-  protected boolean darkMode = false;
+  protected boolean darkMode = true;
   protected boolean lmbClicked = false;
   protected boolean rmbClicked = false;
   protected boolean showDone = false;
@@ -344,6 +344,29 @@ public class App extends Application {
     scene.addEventHandler(KeyEvent.KEY_PRESSED, (key) -> {
       if (state == State.TREE_VIEW) {
         Event.keyPressHandler(this, key);
+      } else if (state == State.TREE_SELECTION) {
+        switch (key.getCode()) {
+        case ESCAPE:
+          if (Event.close(this)) {
+            System.exit(0);
+          }
+          break;
+        case DIGIT1:
+          workingDirectory = vaults[0];
+          setup();
+          break;
+        case DIGIT2:
+          workingDirectory = vaults[1];
+          setup();
+          break;
+        case DIGIT3:
+          workingDirectory = vaults[2];
+          setup();
+          break;
+        default:
+          break;
+        }
+        key.consume();
       }
     });
 
@@ -380,13 +403,32 @@ public class App extends Application {
 
       render();
     });
+
+    scene.widthProperty().addListener((obs, oldVal, newVal) -> {
+      dimensions.x = (double)newVal;
+      canvas.setWidth(dimensions.x);
+      render();
+    });
+
+    scene.heightProperty().addListener((obs, oldVal, newVal) -> {
+      dimensions.y = (double)newVal;
+      canvas.setHeight(dimensions.y);
+      render();
+    });
+
+    stage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, (e) -> {
+      if (Event.close(this)) {
+        System.exit(0);
+      } else {
+        e.consume();
+      }
+    });
   }
 
   private void setup() {
     tree = new Tree();
     tree.readFromFile(workingDirectory + "/save.tree");
     readDataStore();
-    addListeners(scene, canvas);
     state = State.TREE_VIEW;
     render();
   }
@@ -416,52 +458,7 @@ public class App extends Application {
     stage.setTitle("Tasker");
     gc = canvas.getGraphicsContext2D();
 
-    scene.widthProperty().addListener((obs, oldVal, newVal) -> {
-      dimensions.x = (double)newVal;
-      canvas.setWidth(dimensions.x);
-      render();
-    });
-
-    scene.heightProperty().addListener((obs, oldVal, newVal) -> {
-      dimensions.y = (double)newVal;
-      canvas.setHeight(dimensions.y);
-      render();
-    });
-
-    stage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, (e) -> {
-      if (Event.close(this)) {
-        System.exit(0);
-      } else {
-        e.consume();
-      }
-    });
-
-    scene.addEventHandler(KeyEvent.KEY_PRESSED, (key) -> {
-      if (state == State.TREE_SELECTION) {
-        switch (key.getCode()) {
-        case ESCAPE:
-          if (Event.close(this)) {
-            System.exit(0);
-          }
-          break;
-        case DIGIT1:
-          workingDirectory = vaults[0];
-          setup();
-          break;
-        case DIGIT2:
-          workingDirectory = vaults[1];
-          setup();
-          break;
-        case DIGIT3:
-          workingDirectory = vaults[2];
-          setup();
-          break;
-        default:
-          break;
-        }
-        key.consume();
-      }
-    });
+    addListeners(scene, canvas);
 
     stage.setScene(scene);
     stage.show();
