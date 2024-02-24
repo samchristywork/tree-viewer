@@ -44,6 +44,7 @@ public class App extends Application {
   protected boolean rmbClicked = false;
   protected boolean showDone = false;
   protected double size = 1;
+  protected State state = State.TREE_SELECTION;
 
   private double calculateLayout(Node n) {
     return calculateLayout(n, new Vec2(0, 0));
@@ -258,7 +259,7 @@ public class App extends Application {
   }
 
   public void render() {
-    if (tree == null) {
+    if (state == State.TREE_SELECTION) {
       setColorScheme();
       renderBackground();
       renderGrid();
@@ -273,7 +274,7 @@ public class App extends Application {
         gc.fillText(vault, 30, offset);
         i++;
       }
-    } else {
+    } else if (state == State.TREE_VIEW) {
       if (selectedNode == null) {
         selectedNode = tree.root;
       }
@@ -340,8 +341,11 @@ public class App extends Application {
   }
 
   private void addListeners(Scene scene, Canvas canvas) {
-    scene.addEventHandler(KeyEvent.KEY_PRESSED,
-                          (key) -> { Event.keyPressHandler(this, key); });
+    scene.addEventHandler(KeyEvent.KEY_PRESSED, (key) -> {
+      if (state == State.TREE_VIEW) {
+        Event.keyPressHandler(this, key);
+      }
+    });
 
     scene.addEventHandler(MouseEvent.MOUSE_CLICKED, (m) -> {
       mouse.x = m.getX();
@@ -383,6 +387,7 @@ public class App extends Application {
     tree.readFromFile(workingDirectory + "/save.tree");
     readDataStore();
     addListeners(scene, canvas);
+    state = State.TREE_VIEW;
     render();
   }
 
@@ -432,8 +437,7 @@ public class App extends Application {
     });
 
     scene.addEventHandler(KeyEvent.KEY_PRESSED, (key) -> {
-      System.out.println("key: " + key.getCode());
-      if (tree == null) {
+      if (state == State.TREE_SELECTION) {
         switch (key.getCode()) {
         case DIGIT1:
           workingDirectory = vaults[0];
