@@ -20,6 +20,25 @@ public class Node {
     this.parent = parent;
   }
 
+  protected Node(String label, Node parent, String attributes) {
+    this.label = label;
+    this.parent = parent;
+
+    if (attributes.equals("")) {
+      return;
+    }
+
+    if (attributes.startsWith("#")) {
+      attributes = attributes.substring(1);
+    }
+
+    String[] attrs = attributes.split(";");
+    for (String attr : attrs) {
+      String[] kv = attr.split("=");
+      this.attributes.put(kv[0], kv[1]);
+    }
+  }
+
   protected Node(String label) { this.label = label; }
 
   protected ArrayList<String> getFQNNs() {
