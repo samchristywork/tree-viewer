@@ -18,13 +18,12 @@ public class Tree {
   protected Node root = new Node("root", null);
   protected Node current = root;
   private String state = "";
+  private String fullyQualifiedState = "";
 
-  protected void sort() {
-    root.sort();
-  }
+  protected void sort() { root.sort(); }
 
   protected boolean isModified() {
-    if (serialize().equals(state)) {
+    if (serializeYML().equals(state)) {
       return false;
     }
 
@@ -32,7 +31,7 @@ public class Tree {
   }
 
   private static void changesDialog(ArrayList<String> addedLines,
-      ArrayList<String> removedLines) {
+                                    ArrayList<String> removedLines) {
     Dialog<String> dialog = new Dialog<>();
     dialog.setTitle("Changes");
 
@@ -59,7 +58,7 @@ public class Tree {
     }
 
     VBox vBox = new VBox(10, new Label("Added:"), added, new Label("Removed:"),
-        removed);
+                         removed);
     vBox.setPadding(new Insets(20, 20, 20, 20));
     vBox.getChildren().get(0).setStyle("-fx-font-weight: bold;");
     vBox.getChildren().get(2).setStyle("-fx-font-weight: bold;");
@@ -78,12 +77,12 @@ public class Tree {
     ArrayList<String> removed = new ArrayList<String>();
 
     for (String line : lines) {
-      if (state.indexOf(line) == -1) {
+      if (fullyQualifiedState.indexOf(line) == -1) {
         added.add(line);
       }
     }
 
-    lines = state.split("\n");
+    lines = fullyQualifiedState.split("\n");
     for (String line : lines) {
       if (s.indexOf(line) == -1) {
         removed.add(line);
@@ -93,9 +92,9 @@ public class Tree {
     changesDialog(added, removed);
   }
 
-  protected void writeToFile(String filename, String backup)
+  protected void writeToYAMLFile(String filename, String backup)
       throws IOException {
-    String s = serialize();
+    String s = serializeYML();
 
     {
       BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
@@ -109,7 +108,16 @@ public class Tree {
       writer.close();
     }
 
-    state = s;
+    state = serializeYML();
+    fullyQualifiedState = serialize();
+  }
+
+  private String serializeYML() {
+    String s = "";
+    for (Node child : root.children) {
+      s += child.serializeYML(0);
+    }
+    return s;
   }
 
   private String serialize() {
@@ -211,7 +219,7 @@ public class Tree {
   protected Node randomNode() {
     ArrayList<Node> nodes = root.getNodes();
     int n = nodes.size();
-    int i = (int) (Math.random() * n);
+    int i = (int)(Math.random() * n);
     return nodes.get(i);
   }
 
