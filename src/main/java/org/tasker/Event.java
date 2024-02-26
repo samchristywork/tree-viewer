@@ -51,6 +51,7 @@ public class Event {
       {"U", KeyCode.U, "Show usage"},
       {"X", KeyCode.X, "Delete the selected node"},
       {"Z", KeyCode.Z, "Pan to selected node"},
+      {"", null, "Add a symbolic link"},
       {"", null, "Test"},
       {"", null, "Toggle dark mode"},
   };
@@ -62,6 +63,17 @@ public class Event {
     case "Add a new node":
       app.selectedNode.addNode(app);
       break;
+    case "Add a symbolic link": {
+      ArrayList<String> nodeArray = app.tree.root.getFQNNs();
+      String[] nodes = new String[nodeArray.size()];
+      nodes = nodeArray.toArray(nodes);
+      String fqnn = showDialog(nodes, "Find Node");
+      Node n = app.tree.findNode(fqnn);
+      if (n != null) {
+        app.selectedNode.addLink(n);
+      }
+      zoom(app);
+    } break;
     case "Delete the selected node":
       Node parent = app.selectedNode.parent;
       app.tree.deleteNode(app.selectedNode);
