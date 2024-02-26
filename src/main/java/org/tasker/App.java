@@ -216,11 +216,9 @@ public class App extends Application {
   private void renderStatusText() {
     int fontSize = 16;
 
-    String statusline =
-        String.format("Pan=(%.0f, %.0f)", globalOffset.x, globalOffset.y);
+    String statusline = String.format("Pan=(%.0f, %.0f)", globalOffset.x, globalOffset.y);
     statusline += String.format(" Mouse=(%.0f, %.0f)", mouse.x, mouse.y);
-    statusline +=
-        String.format(" Dimensions=(%.0f, %.0f)", dimensions.x, dimensions.y);
+    statusline += String.format(" Dimensions=(%.0f, %.0f)", dimensions.x, dimensions.y);
 
     gc.setFill(colorScheme.textColor);
     gc.setFont(Font.font("Arial", fontSize));
@@ -245,6 +243,15 @@ public class App extends Application {
       gc.fillText("" + (i + 1), 10, y);
       gc.setFill(colorScheme.textColor);
       gc.fillText("" + child.label, 30, y);
+      i++;
+    }
+
+    for (String link : selectedNode.links) {
+      double y = 10 + i * fontSize + fontSize;
+      gc.setFill(Color.GREY);
+      gc.fillText("" + (i + 1), 10, y);
+      gc.setFill(colorScheme.textColor);
+      gc.fillText("" + link.replace("\t", "→"), 30, y);
       i++;
     }
   }
@@ -423,13 +430,13 @@ public class App extends Application {
     });
 
     scene.widthProperty().addListener((obs, oldVal, newVal) -> {
-      dimensions.x = (double)newVal;
+      dimensions.x = (double) newVal;
       canvas.setWidth(dimensions.x);
       render();
     });
 
     scene.heightProperty().addListener((obs, oldVal, newVal) -> {
-      dimensions.y = (double)newVal;
+      dimensions.y = (double) newVal;
       canvas.setHeight(dimensions.y);
       render();
     });
@@ -484,5 +491,7 @@ public class App extends Application {
     render();
   }
 
-  public static void main(String[] args) { launch(args); }
+  public static void main(String[] args) {
+    launch(args);
+  }
 }
