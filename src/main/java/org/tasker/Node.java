@@ -9,6 +9,7 @@ import javafx.scene.control.TextInputDialog;
 public class Node {
   private HashMap<String, String> attributes = new HashMap<String, String>();
   protected ArrayList<Node> children = new ArrayList<Node>();
+  protected ArrayList<String> links = new ArrayList<String>();
   protected Node parent;
   protected Rect bounds = new Rect(0, 0, 0, 0);
   protected String label;
@@ -173,6 +174,10 @@ public class Node {
     }
 
     return s;
+  }
+
+  protected void addLink(Node n) {
+    links.add(n.fullyQualifiedName());
   }
 
   protected void addNode(App app) {
