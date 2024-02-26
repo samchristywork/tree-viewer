@@ -23,7 +23,7 @@ public class App extends Application {
   private ColorScheme darkColorScheme = new ColorScheme();
   private ColorScheme lightColorScheme = new ColorScheme();
   private Scene scene;
-  private String[] vaults = {"./", "foo/", "bar/"};
+  private String[] vaults = { "./", "foo/", "bar/" };
   private double lineHeight = 40;
   private double spaceBetweenNodes = 50;
   protected ColorScheme colorScheme;
@@ -139,7 +139,8 @@ public class App extends Application {
     for (int i = 0; i < n.links.size(); i++) {
       String link = n.links.get(i).replace("\t", "→");
       Vec2 a = n.getRightNode();
-      Vec2 b = new Vec2(a.x + spaceBetweenNodes, a.y + i * lineHeight);
+      Vec2 b = new Vec2(a.x + spaceBetweenNodes,
+          a.y + (i + n.children.size()) * lineHeight);
       Draw.circle(this, a, 3, colorScheme.nodeBorderColor,
           colorScheme.bezierNodeColor, 1);
       Draw.circle(this, b, 3, colorScheme.nodeBorderColor,
@@ -342,24 +343,24 @@ public class App extends Application {
       String[] parts = line.split("=");
       if (parts.length == 2) {
         switch (parts[0]) {
-        case "darkMode":
-          darkMode = Boolean.parseBoolean(parts[1]);
-          break;
-        case "showDone":
-          showDone = Boolean.parseBoolean(parts[1]);
-          break;
-        case "selectedNodeFQNN":
-          selectedNode = tree.findNode(parts[1]);
-          break;
-        case "globalOffsetX":
-          globalOffset.x = Double.parseDouble(parts[1]);
-          break;
-        case "globalOffsetY":
-          globalOffset.y = Double.parseDouble(parts[1]);
-          break;
-        case "currentNodeFQNN":
-          tree.current = tree.findNode(parts[1]);
-          break;
+          case "darkMode":
+            darkMode = Boolean.parseBoolean(parts[1]);
+            break;
+          case "showDone":
+            showDone = Boolean.parseBoolean(parts[1]);
+            break;
+          case "selectedNodeFQNN":
+            selectedNode = tree.findNode(parts[1]);
+            break;
+          case "globalOffsetX":
+            globalOffset.x = Double.parseDouble(parts[1]);
+            break;
+          case "globalOffsetY":
+            globalOffset.y = Double.parseDouble(parts[1]);
+            break;
+          case "currentNodeFQNN":
+            tree.current = tree.findNode(parts[1]);
+            break;
         }
       }
     }
@@ -371,25 +372,25 @@ public class App extends Application {
         Event.keyPressHandler(this, key);
       } else if (state == State.TREE_SELECTION) {
         switch (key.getCode()) {
-        case ESCAPE:
-          if (Event.close(this)) {
-            System.exit(0);
-          }
-          break;
-        case DIGIT1:
-          workingDirectory = vaults[0];
-          setup();
-          break;
-        case DIGIT2:
-          workingDirectory = vaults[1];
-          setup();
-          break;
-        case DIGIT3:
-          workingDirectory = vaults[2];
-          setup();
-          break;
-        default:
-          break;
+          case ESCAPE:
+            if (Event.close(this)) {
+              System.exit(0);
+            }
+            break;
+          case DIGIT1:
+            workingDirectory = vaults[0];
+            setup();
+            break;
+          case DIGIT2:
+            workingDirectory = vaults[1];
+            setup();
+            break;
+          case DIGIT3:
+            workingDirectory = vaults[2];
+            setup();
+            break;
+          default:
+            break;
         }
         key.consume();
       }
