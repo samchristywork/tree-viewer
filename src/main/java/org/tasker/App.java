@@ -77,7 +77,7 @@ public class App extends Application {
       n.bounds.y = -globalOffset.y + mouse.y - n.bounds.h / 2;
     }
 
-    if (n.children.size() == 0) {
+    if (n.children.size() == 0 && n.links.size() == 0) {
       height = 1;
     } else {
       for (Node child : n.children) {
@@ -85,7 +85,7 @@ public class App extends Application {
           child.show = false;
           continue;
         } else if (!child.isAncestor(tree.current) &&
-                   !tree.current.isAncestor(child) && tree.current != child) {
+            !tree.current.isAncestor(child) && tree.current != child) {
           child.show = false;
           continue;
         } else {
@@ -94,6 +94,10 @@ public class App extends Application {
 
         Vec2 o = new Vec2(offset.x + width, offset.y + height);
         height += calculateLayout(child, o);
+      }
+
+      for (int i = 0; i < n.links.size(); i++) {
+        height += 1;
       }
     }
 
@@ -111,27 +115,41 @@ public class App extends Application {
       r.w += padding.x * 2;
       r.h += padding.y * 2;
       Draw.rect(this, r, colorScheme.borderColor, colorScheme.borderBackground,
-                1);
+          1);
     }
 
-    if (n.children.size() != 0) {
-      for (Node child : n.children) {
-        if (!child.show) {
-          continue;
-        }
-
-        Vec2 a = n.getRightNode();
-        Vec2 b = child.getLeftNode();
-        Draw.circle(this, a, 3, colorScheme.nodeBorderColor,
-                    colorScheme.bezierNodeColor, 1);
-        Draw.circle(this, b, 3, colorScheme.nodeBorderColor,
-                    colorScheme.bezierNodeColor, 1);
-        Draw.bezier(this, a, new Vec2((a.x + b.x) / 2, a.y),
-                    new Vec2((a.x + b.x) / 2, b.y), b,
-                    colorScheme.bezierCurveColor, 2);
-
-        renderSubtree(child);
+    for (Node child : n.children) {
+      if (!child.show) {
+        continue;
       }
+
+      Vec2 a = n.getRightNode();
+      Vec2 b = child.getLeftNode();
+      Draw.circle(this, a, 3, colorScheme.nodeBorderColor,
+          colorScheme.bezierNodeColor, 1);
+      Draw.circle(this, b, 3, colorScheme.nodeBorderColor,
+          colorScheme.bezierNodeColor, 1);
+      Draw.bezier(this, a, new Vec2((a.x + b.x) / 2, a.y),
+          new Vec2((a.x + b.x) / 2, b.y), b,
+          colorScheme.bezierCurveColor, 2);
+
+      renderSubtree(child);
+    }
+
+    for (int i = 0; i < n.links.size(); i++) {
+      String link = n.links.get(i).replace("\t", "→");
+      Vec2 a = n.getRightNode();
+      Vec2 b = new Vec2(a.x + spaceBetweenNodes, a.y + i * lineHeight);
+      Draw.circle(this, a, 3, colorScheme.nodeBorderColor,
+          colorScheme.bezierNodeColor, 1);
+      Draw.circle(this, b, 3, colorScheme.nodeBorderColor,
+          colorScheme.bezierNodeColor, 1);
+      Draw.bezier(this, a, new Vec2((a.x + b.x) / 2, a.y),
+          new Vec2((a.x + b.x) / 2, b.y), b,
+          colorScheme.bezierCurveColor, 2);
+      b.x += padding.x;
+      b.y += padding.y / 2;
+      Draw.text(this, link, b, colorScheme.textColor);
     }
 
     n.draw(this);
@@ -183,9 +201,9 @@ public class App extends Application {
 
   private void renderGrid() {
     Grid.renderGrid(this, new Vec2(20, 20), new Vec2(100, 100),
-                    colorScheme.gridColor1);
+        colorScheme.gridColor1);
     Grid.renderGrid(this, new Vec2(100, 100), new Vec2(100, 100),
-                    colorScheme.gridColor2);
+        colorScheme.gridColor2);
   }
 
   private void renderSubtree() {
@@ -237,7 +255,7 @@ public class App extends Application {
     }
 
     String[] lines = readLinesFromFile(workingDirectory + "/files/" +
-                                       selectedNode.label + ".md");
+        selectedNode.label + ".md");
     double fontSize = gc.getFont().getSize();
 
     double y = 2 * fontSize;
