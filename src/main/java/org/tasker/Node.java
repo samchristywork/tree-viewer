@@ -1,5 +1,7 @@
 package org.tasker;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,6 +39,19 @@ public class Node {
     for (String attr : attrs) {
       String[] kv = attr.split("=");
       this.attributes.put(kv[0], kv[1]);
+    }
+  }
+
+  protected Node(String label) {
+    this.label = label;
+  }
+
+  private String encodeString(String s) {
+    try {
+      String encodedString = URLEncoder.encode(s, "UTF-8");
+      return encodedString;
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException("UTF-8 is not supported", e);
     }
   }
 
