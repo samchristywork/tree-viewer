@@ -31,14 +31,10 @@ public class Node {
       return;
     }
 
-    if (attributes.startsWith("#")) {
-      attributes = attributes.substring(1);
-    }
-
     String[] attrs = attributes.split(";");
     for (String attr : attrs) {
       String[] kv = attr.split("=");
-      this.attributes.put(kv[0], kv[1]);
+      this.attributes.put(decodeString(kv[0]), decodeString(kv[1]));
     }
   }
 
@@ -185,10 +181,10 @@ public class Node {
     for (int i = 0; i < depth; i++) {
       s += "  ";
     }
-    s += "\"" + label + "\":";
+    s += "\"" + encodeString(label) + "\":";
 
     for (String key : attributes.keySet()) {
-      s += "#" + key + "=" + attributes.get(key) + ";";
+      s += encodeString(key) + "=" + encodeString(attributes.get(key)) + ";";
     }
 
     s += "\n";
