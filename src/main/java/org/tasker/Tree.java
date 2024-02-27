@@ -3,11 +3,11 @@ package org.tasker;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import javafx.geometry.Insets;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
@@ -20,7 +20,18 @@ public class Tree {
   private String state = "";
   private String fullyQualifiedState = "";
 
-  protected void sort() { root.sort(); }
+  private String decodeString(String s) {
+    try {
+      String decodedString = java.net.URLDecoder.decode(s, "UTF-8");
+      return decodedString;
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException("UTF-8 is not supported", e);
+    }
+  }
+
+  protected void sort() {
+    root.sort();
+  }
 
   protected boolean isModified() {
     if (serializeYML().equals(state)) {
@@ -31,7 +42,7 @@ public class Tree {
   }
 
   private static void changesDialog(ArrayList<String> addedLines,
-                                    ArrayList<String> removedLines) {
+      ArrayList<String> removedLines) {
     Dialog<String> dialog = new Dialog<>();
     dialog.setTitle("Changes");
 
@@ -58,7 +69,7 @@ public class Tree {
     }
 
     VBox vBox = new VBox(10, new Label("Added:"), added, new Label("Removed:"),
-                         removed);
+        removed);
     vBox.setPadding(new Insets(20, 20, 20, 20));
     vBox.getChildren().get(0).setStyle("-fx-font-weight: bold;");
     vBox.getChildren().get(2).setStyle("-fx-font-weight: bold;");
@@ -177,7 +188,7 @@ public class Tree {
   protected Node randomNode() {
     ArrayList<Node> nodes = root.getNodes();
     int n = nodes.size();
-    int i = (int)(Math.random() * n);
+    int i = (int) (Math.random() * n);
     return nodes.get(i);
   }
 
