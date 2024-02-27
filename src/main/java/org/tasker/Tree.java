@@ -161,7 +161,7 @@ public class Tree {
       if (parts.length == 2) {
         attributes = parts[1];
       }
-      String label = parts[0].strip().replace("\"", "");
+      String label = decodeString(parts[0]).strip().replace("\"", "");
       int d = (line.length() - line.stripLeading().length()) / 2;
       if (d == depth) {
         n.children.add(new Node(label, n, attributes));
