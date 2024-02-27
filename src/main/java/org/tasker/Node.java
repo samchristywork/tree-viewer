@@ -55,7 +55,14 @@ public class Node {
     }
   }
 
-  protected Node(String label) { this.label = label; }
+  private String decodeString(String s) {
+    try {
+      String decodedString = java.net.URLDecoder.decode(s, "UTF-8");
+      return decodedString;
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException("UTF-8 is not supported", e);
+    }
+  }
 
   protected ArrayList<String> getFQNNs() {
     ArrayList<String> fqnns = new ArrayList<String>();
@@ -154,7 +161,9 @@ public class Node {
     attributes.put(key, value);
   }
 
-  protected void removeAttr(String key) { attributes.remove(key); }
+  protected void removeAttr(String key) {
+    attributes.remove(key);
+  }
 
   protected String serialize() {
     String s = fullyQualifiedName();
@@ -245,7 +254,7 @@ public class Node {
       public void run() {
         String filename = app.workingDirectory + "/files/" + label + ".md";
         try {
-          String[] cmd = {"st", "-e", "nvim", filename};
+          String[] cmd = { "st", "-e", "nvim", filename };
           Runtime.getRuntime().exec(cmd);
         } catch (Exception e) {
           e.printStackTrace();
@@ -321,19 +330,19 @@ public class Node {
       }
     } else if (n == app.nodeToReparent) {
       Draw.rect(app, r, app.colorScheme.nodeBorderColor,
-                app.colorScheme.nodeReparentColor, 1);
+          app.colorScheme.nodeReparentColor, 1);
     } else if (n == app.selectedNode && n.checkAttr("status", "done")) {
       Draw.rect(app, r, app.colorScheme.nodeBorderColor,
-                app.colorScheme.nodeSelectedCompletedColor, 1);
+          app.colorScheme.nodeSelectedCompletedColor, 1);
     } else if (n == app.selectedNode) {
       Draw.rect(app, r, app.colorScheme.nodeBorderColor,
-                app.colorScheme.nodeSelectedColor, 1);
+          app.colorScheme.nodeSelectedColor, 1);
     } else if (n.checkAttr("status", "done")) {
       Draw.rect(app, r, app.colorScheme.nodeBorderColor,
-                app.colorScheme.nodeCompletedColor, 1);
+          app.colorScheme.nodeCompletedColor, 1);
     } else {
       Draw.rect(app, r, app.colorScheme.nodeBorderColor,
-                app.colorScheme.nodeBackgroundColor, 1);
+          app.colorScheme.nodeBackgroundColor, 1);
     }
   }
 
