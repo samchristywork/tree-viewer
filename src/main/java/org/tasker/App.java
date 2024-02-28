@@ -303,6 +303,12 @@ public class App extends Application {
         gc.fillText(vault, 30, offset);
         i++;
       }
+
+      double offset = 10 + i * 16;
+      gc.setFill(Color.GREY);
+      gc.fillText("n", 10, offset);
+      gc.setFill(colorScheme.textColor);
+      gc.fillText("New Vault", 30, offset);
     } else if (state == State.TREE_VIEW) {
       if (selectedNode == null) {
         selectedNode = tree.root;
