@@ -488,6 +488,21 @@ public class App extends Application {
     render();
   }
 
+  private void readVaultsFile() {
+    if (!Files.exists(Paths.get("/home/sam/.vaults.txt"))) {
+      try {
+        Files.createFile(Paths.get("/home/sam/.vaults.txt"));
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+
+    vaults.clear();
+    for (String line : readLinesFromFile("/home/sam/.vaults.txt")) {
+      vaults.add(line);
+    }
+  }
+
   @Override
   public void start(Stage stage) {
     this.stage = stage;
@@ -507,6 +522,7 @@ public class App extends Application {
     darkColorScheme.initializeDark();
     lightColorScheme.initializeLight();
 
+    readVaultsFile();
 
     canvas = new Canvas(dimensions.x, dimensions.y);
     scene = new Scene(new StackPane(canvas), dimensions.x, dimensions.y);
