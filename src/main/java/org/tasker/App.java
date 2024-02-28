@@ -403,16 +403,20 @@ public class App extends Application {
             }
             break;
           case DIGIT1:
-            workingDirectory = vaults[0];
-            setup();
-            break;
           case DIGIT2:
-            workingDirectory = vaults[1];
+          case DIGIT3:
+          case DIGIT4:
+          case DIGIT5:
+          case DIGIT6:
+          case DIGIT7:
+          case DIGIT8:
+          case DIGIT9:
+            int i = key.getCode().ordinal() - 25;
+            workingDirectory = vaults.get(i);
             setup();
             break;
-          case DIGIT3:
-            workingDirectory = vaults[2];
-            setup();
+          case N:
+            vaultDialog();
             break;
           default:
             break;
