@@ -388,6 +388,34 @@ public class App extends Application {
             public void run() {
               vaults.add(name);
               workingDirectory = name;
+
+              try {
+                Files.createDirectories(Paths.get(workingDirectory + "/files"));
+              } catch (IOException e) {
+                e.printStackTrace();
+              }
+
+              try {
+                Files.createDirectories(
+                    Paths.get(workingDirectory + "/backups"));
+              } catch (IOException e) {
+                e.printStackTrace();
+              }
+
+              try {
+                if (!Files.exists(Paths.get(workingDirectory + "/nodes.yml"))) {
+                  Files.createFile(Paths.get(workingDirectory + "/nodes.yml"));
+                }
+              } catch (IOException e) {
+                e.printStackTrace();
+              }
+
+              try {
+                Files.write(Paths.get("/home/sam/.vaults.txt"), vaults);
+              } catch (IOException e) {
+                e.printStackTrace();
+              }
+
               readVaultsFile();
               render();
             }
