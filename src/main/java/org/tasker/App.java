@@ -4,11 +4,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
@@ -23,7 +26,7 @@ public class App extends Application {
   private ColorScheme darkColorScheme = new ColorScheme();
   private ColorScheme lightColorScheme = new ColorScheme();
   private Scene scene;
-  private String[] vaults = { "./", "foo/", "bar/" };
+  private ArrayList<String> vaults = new ArrayList<String>();
   private double lineHeight = 40;
   private double spaceBetweenNodes = 50;
   protected ColorScheme colorScheme;
@@ -364,6 +367,28 @@ public class App extends Application {
         }
       }
     }
+  }
+
+  private void vaultDialog() {
+    Platform.runLater(new Runnable() {
+      @Override
+      public void run() {
+        TextInputDialog dialog = new TextInputDialog("MyVault");
+        dialog.setTitle("New Vault");
+        dialog.setContentText("Name:");
+        dialog.showAndWait().ifPresent(name -> {
+          Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+              vaults.add(name);
+              workingDirectory = name;
+              readVaultsFile();
+              render();
+            }
+          });
+        });
+      }
+    });
   }
 
   private void addListeners(Scene scene, Canvas canvas) {
