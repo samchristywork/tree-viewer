@@ -219,6 +219,10 @@ public class App extends Application {
     double y = 2 * fontSize;
     for (int i = 0; i < lines.length; i++) {
       String line = lines[i].replace("[ ]", "☐").replace("[x]", "☑");
+      String firstTwo = line.length() > 2 ? line.substring(0, 2) : "";
+      if (firstTwo.equals("- ")) {
+        line = "• " + line.substring(2);
+      }
       y += fontSize;
       gc.setFill(colorScheme.textColor);
 
