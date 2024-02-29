@@ -17,6 +17,7 @@ public class ColorScheme {
   protected Color nodeReparentColor;
   protected Color nodeSelectedColor;
   protected Color nodeSelectedCompletedColor;
+  protected Color previewBackgroundColor;
   protected Color textColor;
 
   protected void initializeDark() {
@@ -34,6 +35,7 @@ public class ColorScheme {
     nodeReparentColor = new Color(0.12, 0.22, 0.32, 1);
     nodeSelectedColor = new Color(0.1, 0.2, 0.3, 1);
     nodeSelectedCompletedColor = new Color(0.1, 0.3, 0.2, 1);
+    previewBackgroundColor = new Color(0.2, 0.2, 0.2, 0.8);
     textColor = Color.WHITE;
   }
 
@@ -52,6 +54,7 @@ public class ColorScheme {
     nodeReparentColor = new Color(0.96, 0.88, 0.72, 1);
     nodeSelectedColor = new Color(0.69, 0.85, 0.9, 1);
     nodeSelectedCompletedColor = new Color(0.69, 0.9, 0.85, 1);
+    previewBackgroundColor = new Color(0.8, 0.8, 0.8, 0.8);
     textColor = Color.BLACK;
   }
 }
