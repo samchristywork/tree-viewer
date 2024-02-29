@@ -250,8 +250,12 @@ public class Node {
       public void run() {
         String filename = app.workingDirectory + "/files/" + label + ".md";
         try {
-          String[] cmd = { "st", "-e", "nvim", filename };
-          Runtime.getRuntime().exec(cmd);
+          ArrayList<String> cmd = new ArrayList<String>();
+          for (String c : app.editorCommand.split(" ")) {
+            cmd.add(c);
+          }
+          cmd.add(filename);
+          Runtime.getRuntime().exec(cmd.toArray(new String[0]));
         } catch (Exception e) {
           e.printStackTrace();
         }

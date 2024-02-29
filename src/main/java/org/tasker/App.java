@@ -34,6 +34,7 @@ public class App extends Application {
   protected Node targetNode = null;
   protected Stage stage;
   protected State state = State.TREE_SELECTION;
+  protected String editorCommand = "gedit";
   protected String workingDirectory = "./";
   protected Tree tree = null;
   protected Vec2 dimensions = new Vec2(1600, 800);
@@ -320,6 +321,9 @@ public class App extends Application {
             break;
           case "currentNodeFQNN":
             tree.current = tree.findNode(parts[1]);
+            break;
+          case "editorCommand":
+            editorCommand = parts[1];
             break;
         }
       }
