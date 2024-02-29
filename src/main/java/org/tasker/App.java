@@ -211,6 +211,11 @@ public class App extends Application {
         selectedNode.label + ".md");
     double fontSize = gc.getFont().getSize();
 
+    if (lines.length != 0) {
+      gc.setFill(colorScheme.previewBackgroundColor);
+      gc.fillRect(dimensions.x - 320, 0, 320, dimensions.y);
+    }
+
     double y = 2 * fontSize;
     for (int i = 0; i < lines.length; i++) {
       String line = lines[i].replace("[ ]", "☐").replace("[x]", "☑");
