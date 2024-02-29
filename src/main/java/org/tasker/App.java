@@ -22,19 +22,18 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 public class App extends Application {
+  private ArrayList<String> vaults = new ArrayList<String>();
   private Canvas canvas;
   private ColorScheme darkColorScheme = new ColorScheme();
   private ColorScheme lightColorScheme = new ColorScheme();
   private Scene scene;
-  private ArrayList<String> vaults = new ArrayList<String>();
-  private double lineHeight = 40;
-  private double spaceBetweenNodes = 50;
   protected ColorScheme colorScheme;
   protected GraphicsContext gc;
   protected Node nodeToReparent = null;
   protected Node selectedNode = null;
   protected Node targetNode = null;
   protected Stage stage;
+  protected State state = State.TREE_SELECTION;
   protected String workingDirectory = "./";
   protected Tree tree = null;
   protected Vec2 dimensions = new Vec2(1600, 800);
@@ -46,66 +45,9 @@ public class App extends Application {
   protected boolean lmbClicked = false;
   protected boolean rmbClicked = false;
   protected boolean showDone = false;
+  protected double lineHeight = 40;
   protected double size = 1;
-  protected State state = State.TREE_SELECTION;
-
-  private double calculateLayout(Node n) {
-    return calculateLayout(n, new Vec2(0, 0));
-  }
-
-  private double calculateLayout(Node n, Vec2 offset) {
-    n.show = true;
-
-    Text text = new Text(n.label);
-    text.setFont(gc.getFont());
-    n.extents.x = text.getLayoutBounds().getWidth();
-    n.extents.y = text.getLayoutBounds().getHeight();
-
-    double height = 0;
-    double width = n.extents.x + padding.x * 2 + spaceBetweenNodes;
-
-    n.bounds.x = offset.x;
-    n.bounds.y = offset.y * lineHeight * size;
-    n.bounds.w = n.extents.x + padding.x * 2;
-    n.bounds.h = n.extents.y + padding.y * 2;
-
-    if (compact) {
-      n.bounds.y = offset.y * 17;
-      n.bounds.h = 16;
-      padding.y = 0;
-    }
-
-    if (n == nodeToReparent) {
-      n.bounds.x = -globalOffset.x + mouse.x - n.bounds.w / 2;
-      n.bounds.y = -globalOffset.y + mouse.y - n.bounds.h / 2;
-    }
-
-    if (n.children.size() == 0 && n.links.size() == 0) {
-      height = 1;
-    } else {
-      for (Node child : n.children) {
-        if (!showDone && child.checkAttr("status", "done")) {
-          child.show = false;
-          continue;
-        } else if (!child.isAncestor(tree.current) &&
-            !tree.current.isAncestor(child) && tree.current != child) {
-          child.show = false;
-          continue;
-        } else {
-          child.show = true;
-        }
-
-        Vec2 o = new Vec2(offset.x + width, offset.y + height);
-        height += calculateLayout(child, o);
-      }
-
-      for (int i = 0; i < n.links.size(); i++) {
-        height += 1;
-      }
-    }
-
-    return height;
-  }
+  protected double spaceBetweenNodes = 50;
 
   private void renderSubtree(Node n) {
     Text text = new Text(n.label);
@@ -321,7 +263,7 @@ public class App extends Application {
       gc.setFont(Font.font("Arial", 12 * size));
       setColorScheme();
       handleReparent();
-      calculateLayout(tree.root);
+      Layout.calculateLayout(this, tree.root);
       renderBackground();
       renderGrid();
       renderSubtree();
