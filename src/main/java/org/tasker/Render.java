@@ -72,4 +72,27 @@ public class Render {
       gc.fillText("Modified", dimensions.x - 80, 10 + fontSize);
     }
   }
+
+  private static void renderChildList(GraphicsContext gc, Node selectedNode, ColorScheme colorScheme) {
+    double fontSize = gc.getFont().getSize();
+
+    int i = 0;
+    for (Node child : selectedNode.children) {
+      double y = 10 + i * fontSize + fontSize;
+      gc.setFill(Color.GREY);
+      gc.fillText("" + (i + 1), 10, y);
+      gc.setFill(colorScheme.textColor);
+      gc.fillText("" + child.label, 30, y);
+      i++;
+    }
+
+    for (String link : selectedNode.links) {
+      double y = 10 + i * fontSize + fontSize;
+      gc.setFill(Color.GREY);
+      gc.fillText("" + (i + 1), 10, y);
+      gc.setFill(colorScheme.textColor);
+      gc.fillText("" + link.replace("\t", "→"), 30, y);
+      i++;
+    }
+  }
 }
