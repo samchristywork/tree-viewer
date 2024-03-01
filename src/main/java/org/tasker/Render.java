@@ -36,4 +36,19 @@ public class Render {
     gc.setFill(colorScheme.backgroundColor);
     gc.fillRect(0, 0, dimensions.x, dimensions.y);
   }
+
+  private static void renderGrid(GraphicsContext gc, Vec2 globalOffset,
+      Vec2 dimensions, ColorScheme colorScheme) {
+    Grid.renderGrid(gc, new Vec2(20, 20), new Vec2(100, 100),
+        globalOffset, dimensions, colorScheme.gridColor1);
+    Grid.renderGrid(gc, new Vec2(100, 100), new Vec2(100, 100),
+        globalOffset, dimensions, colorScheme.gridColor2);
+  }
+
+  private static void renderTree(Tree tree, Mouse m) {
+    tree.sort();
+    renderSubtree(tree.root);
+    m.lmbClicked = false;
+    m.rmbClicked = false;
+  }
 }
