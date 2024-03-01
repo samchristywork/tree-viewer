@@ -51,4 +51,25 @@ public class Render {
     m.lmbClicked = false;
     m.rmbClicked = false;
   }
+
+  private static void renderStatusText(GraphicsContext gc, Vec2 globalOffset,
+      Vec2 dimensions, Mouse mouse, ColorScheme colorScheme) {
+    int fontSize = 16;
+
+    String statusline = String.format("Pan=(%.0f, %.0f)", globalOffset.x, globalOffset.y);
+    statusline += String.format(" Mouse=(%.0f, %.0f)", mouse.pos.x, mouse.pos.y);
+    statusline += String.format(" Dimensions=(%.0f, %.0f)", dimensions.x, dimensions.y);
+
+    gc.setFill(colorScheme.textColor);
+    gc.setFont(Font.font("Arial", fontSize));
+    gc.fillText(statusline, 10, dimensions.y - 10);
+  }
+
+  private static void renderModifiedIndicator(GraphicsContext gc, Tree tree, Vec2 dimensions) {
+    double fontSize = gc.getFont().getSize();
+
+    if (tree.isModified()) {
+      gc.fillText("Modified", dimensions.x - 80, 10 + fontSize);
+    }
+  }
 }
