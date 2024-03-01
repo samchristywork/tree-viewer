@@ -95,4 +95,40 @@ public class Render {
       i++;
     }
   }
+
+  private static void renderFilePreview(GraphicsContext gc, Node selectedNode, String workingDirectory, ColorScheme colorScheme, Vec2 dimensions) {
+    if (selectedNode == null) {
+      return;
+    }
+
+    String[] lines = readLinesFromFile(workingDirectory + "/files/" +
+        selectedNode.label + ".md");
+    double fontSize = gc.getFont().getSize();
+
+    if (lines.length != 0) {
+      gc.setFill(colorScheme.previewBackgroundColor);
+      gc.fillRect(dimensions.x - 320, 0, 320, dimensions.y);
+    }
+
+    double y = 2 * fontSize;
+    for (int i = 0; i < lines.length; i++) {
+      String line = lines[i].replace("[ ]", "☐").replace("[x]", "☑");
+      String firstTwo = line.length() > 2 ? line.substring(0, 2) : "";
+      if (firstTwo.equals("- ")) {
+        line = "• " + line.substring(2);
+      }
+      y += fontSize;
+      gc.setFill(colorScheme.textColor);
+
+      if (line.length() > 0 && line.charAt(0) == '#') {
+        y += fontSize;
+        gc.setFont(Font.font("Arial", 24));
+        gc.fillText(line, dimensions.x - 300, y);
+        gc.setFont(Font.font("Arial", 12));
+        y += fontSize / 2;
+      } else {
+        gc.fillText(line, dimensions.x - 300, y);
+      }
+    }
+  }
 }
