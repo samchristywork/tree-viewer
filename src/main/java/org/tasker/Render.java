@@ -131,4 +131,51 @@ public class Render {
       }
     }
   }
+
+  protected static void render(State state, GraphicsContext gc, Tree tree,
+      Mouse m, Node selectedNode, Vec2 globalOffset, Vec2 dimensions,
+      String workingDirectory, ColorScheme colorScheme, String[] vaults, double size) {
+    if (state == State.TREE_SELECTION) {
+      //setColorScheme();
+      renderBackground(gc, dimensions, colorScheme);
+      renderGrid(gc, globalOffset, dimensions, colorScheme);
+      renderStatusText(gc, globalOffset, dimensions, m, colorScheme);
+
+      int i = 1;
+      for (String vault : vaults) {
+        double offset = 10 + i * 16;
+        gc.setFill(Color.GREY);
+        gc.fillText("" + i, 10, offset);
+        gc.setFill(colorScheme.textColor);
+        gc.fillText(vault, 30, offset);
+        i++;
+      }
+
+      double offset = 10 + i * 16;
+      gc.setFill(Color.GREY);
+      gc.fillText("n", 10, offset);
+      gc.setFill(colorScheme.textColor);
+      gc.fillText("New Vault", 30, offset);
+    } else if (state == State.TREE_VIEW) {
+      if (selectedNode == null) {
+        selectedNode = tree.root;
+      }
+
+      if (tree.current.isAncestor(selectedNode)) {
+        tree.current = selectedNode;
+      }
+
+      gc.setFont(Font.font("Arial", 12 * size));
+      //setColorScheme();
+      //handleReparent();
+      Layout.calculateLayout(this, tree.root);
+      renderBackground();
+      renderGrid();
+      renderSubtree();
+      renderStatusText();
+      renderModifiedIndicator();
+      renderChildList();
+      renderFilePreview();
+    }
+  }
 }
