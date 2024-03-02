@@ -178,4 +178,56 @@ public class Render {
       renderFilePreview();
     }
   }
+
+  private static void renderSubtree(Node n) {
+    Text text = new Text(n.label);
+    text.setFont(gc.getFont());
+
+    if (n == selectedNode || n.checkAttr("border", "true")) {
+      Rect r = n.getSubtreeRect();
+      r.x -= padding.x;
+      r.y -= padding.y;
+      r.w += padding.x * 2;
+      r.h += padding.y * 2;
+      Draw.rect(this, r, colorScheme.borderColor, colorScheme.borderBackground,
+          1);
+    }
+
+    for (Node child : n.children) {
+      if (!child.show) {
+        continue;
+      }
+
+      Vec2 a = n.getRightNode();
+      Vec2 b = child.getLeftNode();
+      Draw.circle(this, a, 3, colorScheme.nodeBorderColor,
+          colorScheme.bezierNodeColor, 1);
+      Draw.circle(this, b, 3, colorScheme.nodeBorderColor,
+          colorScheme.bezierNodeColor, 1);
+      Draw.bezier(this, a, new Vec2((a.x + b.x) / 2, a.y),
+          new Vec2((a.x + b.x) / 2, b.y), b,
+          colorScheme.bezierCurveColor, 2);
+
+      renderSubtree(child);
+    }
+
+    for (int i = 0; i < n.links.size(); i++) {
+      String link = n.links.get(i).replace("\t", "→");
+      Vec2 a = n.getRightNode();
+      Vec2 b = new Vec2(a.x + spaceBetweenNodes,
+          a.y + (i + n.children.size()) * lineHeight);
+      Draw.circle(this, a, 3, colorScheme.nodeBorderColor,
+          colorScheme.bezierNodeColor, 1);
+      Draw.circle(this, b, 3, colorScheme.nodeBorderColor,
+          colorScheme.bezierNodeColor, 1);
+      Draw.bezier(this, a, new Vec2((a.x + b.x) / 2, a.y),
+          new Vec2((a.x + b.x) / 2, b.y), b,
+          colorScheme.bezierCurveColor, 2);
+      b.x += padding.x;
+      b.y += padding.y / 2;
+      Draw.text(this, link, b, colorScheme.textColor);
+    }
+
+    n.draw(this);
+  }
 }
