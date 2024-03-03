@@ -312,12 +312,12 @@ public class Node {
       ColorScheme cs = app.render.colorScheme;
       Draw.rect(app, r, cs.nodeBorderColor, cs.nodeHoverColor, 1);
 
-      if (app.render.lmbClicked) {
+      if (app.render.mouse.lmbClicked) {
         app.selectedNode = n;
       }
 
-      if (app.render.rmbClicked) {
-        app.render.rmbClicked = false;
+      if (app.render.mouse.rmbClicked) {
+        app.render.mouse.rmbClicked = false;
         if (app.nodeToReparent == null) {
           app.nodeToReparent = n;
         } else {

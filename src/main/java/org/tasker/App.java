@@ -269,11 +269,11 @@ public class App extends Application {
       render.mouse.y = m.getY();
 
       if (m.getButton().toString() == "PRIMARY") {
-        render.lmbClicked = true;
+        render.mouse.lmbClicked = true;
       }
 
       if (m.getButton().toString() == "SECONDARY") {
-        render.rmbClicked = true;
+        render.mouse.rmbClicked = true;
       }
 
       render.render();

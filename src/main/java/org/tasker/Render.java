@@ -11,13 +11,11 @@ public class Render {
   protected ColorScheme darkColorScheme = new ColorScheme();
   protected ColorScheme lightColorScheme = new ColorScheme();
   protected GraphicsContext gc;
+  protected Mouse mouse = new Mouse();
   protected Vec2 globalOffset = new Vec2(0, 0);
-  protected Vec2 mouse = new Vec2(0, 0);
   protected Vec2 padding = new Vec2(10, 6);
   protected boolean compact = false;
   protected boolean darkMode = true;
-  protected boolean lmbClicked = false;
-  protected boolean rmbClicked = false;
   protected boolean showDone = false;
   protected double lineHeight = 40;
   protected double size = 1;
@@ -105,8 +103,8 @@ public class Render {
   private void subtree() {
     app.tree.sort();
     subtree(app.tree.root);
-    lmbClicked = false;
-    rmbClicked = false;
+    mouse.lmbClicked = false;
+    mouse.rmbClicked = false;
   }
 
   private void statusText() {
