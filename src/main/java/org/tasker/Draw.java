@@ -5,14 +5,14 @@ import javafx.scene.paint.Color;
 public class Draw {
   protected static void bezier(App app, Vec2 a, Vec2 b, Vec2 c, Vec2 d,
                                Color col, double lineWidth) {
-    double ax = a.x + app.globalOffset.x;
-    double ay = a.y + app.globalOffset.y;
-    double bx = b.x + app.globalOffset.x;
-    double by = b.y + app.globalOffset.y;
-    double cx = c.x + app.globalOffset.x;
-    double cy = c.y + app.globalOffset.y;
-    double dx = d.x + app.globalOffset.x;
-    double dy = d.y + app.globalOffset.y;
+    double ax = a.x + app.render.globalOffset.x;
+    double ay = a.y + app.render.globalOffset.y;
+    double bx = b.x + app.render.globalOffset.x;
+    double by = b.y + app.render.globalOffset.y;
+    double cx = c.x + app.render.globalOffset.x;
+    double cy = c.y + app.render.globalOffset.y;
+    double dx = d.x + app.render.globalOffset.x;
+    double dy = d.y + app.render.globalOffset.y;
 
     app.gc.setStroke(col);
     app.gc.setLineWidth(lineWidth);
@@ -25,8 +25,8 @@ public class Draw {
 
   protected static void circle(App app, Vec2 p, double r, Color fg, Color bg,
                                double lineWidth) {
-    double px = p.x + app.globalOffset.x;
-    double py = p.y + app.globalOffset.y;
+    double px = p.x + app.render.globalOffset.x;
+    double py = p.y + app.render.globalOffset.y;
 
     app.gc.setFill(bg);
     app.gc.setStroke(fg);
@@ -38,10 +38,10 @@ public class Draw {
 
   protected static void line(App app, Vec2 a, Vec2 b, Color c,
                              double lineWidth) {
-    double ax = a.x + app.globalOffset.x;
-    double ay = a.y + app.globalOffset.y;
-    double bx = b.x + app.globalOffset.x;
-    double by = b.y + app.globalOffset.y;
+    double ax = a.x + app.render.globalOffset.x;
+    double ay = a.y + app.render.globalOffset.y;
+    double bx = b.x + app.render.globalOffset.x;
+    double by = b.y + app.render.globalOffset.y;
 
     app.gc.setStroke(c);
     app.gc.setLineWidth(lineWidth);
@@ -51,8 +51,8 @@ public class Draw {
 
   protected static void rect(App app, Rect r, Color fg, Color bg,
                              double lineWidth) {
-    double rx = r.x + app.globalOffset.x;
-    double ry = r.y + app.globalOffset.y;
+    double rx = r.x + app.render.globalOffset.x;
+    double ry = r.y + app.render.globalOffset.y;
 
     app.gc.setFill(bg);
     app.gc.setStroke(fg);
@@ -63,8 +63,8 @@ public class Draw {
   }
 
   protected static void text(App app, String s, Vec2 p, Color c) {
-    double px = p.x + app.globalOffset.x;
-    double py = p.y + app.globalOffset.y;
+    double px = p.x + app.render.globalOffset.x;
+    double py = p.y + app.render.globalOffset.y;
 
     app.gc.setFill(c);
     app.gc.fillText(s, px, py);

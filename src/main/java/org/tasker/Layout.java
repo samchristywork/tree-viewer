@@ -16,29 +16,29 @@ public class Layout {
     n.extents.y = text.getLayoutBounds().getHeight();
 
     double height = 0;
-    double width = n.extents.x + app.padding.x * 2 + app.spaceBetweenNodes;
+    double width = n.extents.x + app.render.padding.x * 2 + app.render.spaceBetweenNodes;
 
     n.bounds.x = offset.x;
-    n.bounds.y = offset.y * app.lineHeight * app.size;
-    n.bounds.w = n.extents.x + app.padding.x * 2;
-    n.bounds.h = n.extents.y + app.padding.y * 2;
+    n.bounds.y = offset.y * app.render.lineHeight * app.render.size;
+    n.bounds.w = n.extents.x + app.render.padding.x * 2;
+    n.bounds.h = n.extents.y + app.render.padding.y * 2;
 
-    if (app.compact) {
+    if (app.render.compact) {
       n.bounds.y = offset.y * 17;
       n.bounds.h = 16;
-      app.padding.y = 0;
+      app.render.padding.y = 0;
     }
 
     if (n == app.nodeToReparent) {
-      n.bounds.x = -app.globalOffset.x + app.mouse.x - n.bounds.w / 2;
-      n.bounds.y = -app.globalOffset.y + app.mouse.y - n.bounds.h / 2;
+      n.bounds.x = -app.render.globalOffset.x + app.mouse.x - n.bounds.w / 2;
+      n.bounds.y = -app.render.globalOffset.y + app.mouse.y - n.bounds.h / 2;
     }
 
     if (n.children.size() == 0 && n.links.size() == 0) {
       height = 1;
     } else {
       for (Node child : n.children) {
-        if (!app.showDone && child.checkAttr("status", "done")) {
+        if (!app.render.showDone && child.checkAttr("status", "done")) {
           child.show = false;
           continue;
         } else if (!child.isAncestor(app.tree.current) &&

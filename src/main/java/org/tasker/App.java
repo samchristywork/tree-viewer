@@ -25,14 +25,15 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 public class App extends Application {
-  protected ArrayList<String> vaults = new ArrayList<String>();
   private Canvas canvas;
   private Event event = new Event();
   private Scene scene;
+  protected ArrayList<String> vaults = new ArrayList<String>();
   protected GraphicsContext gc;
   protected Node nodeToReparent = null;
   protected Node selectedNode = null;
   protected Node targetNode = null;
+  protected Render render = new Render(this);
   protected Stage stage;
   protected State state = State.TREE_SELECTION;
   protected String editorCommand = "gedit";
@@ -40,7 +41,6 @@ public class App extends Application {
   protected Tree tree = null;
   protected Vec2 dimensions = new Vec2(1600, 800);
   protected Vec2 mouse = new Vec2(0, 0);
-  private Render render = new Render(this);
 
   protected void render() {
     render.render();

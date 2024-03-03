@@ -198,22 +198,22 @@ public class Event {
         app.tree.test();
         break;
       case "Toggle compact mode":
-        app.compact = !app.compact;
+        app.render.compact = !app.render.compact;
         break;
       case "Toggle dark mode":
-        app.darkMode = !app.darkMode;
+        app.render.darkMode = !app.render.darkMode;
         break;
       case "Show/hide completed nodes":
-        app.showDone = !app.showDone;
+        app.render.showDone = !app.render.showDone;
         break;
       case "View list of changes to the tree":
         app.tree.viewChanges();
         break;
       case "Zoom in":
-        app.size *= 1.1;
+        app.render.size *= 1.1;
         break;
       case "Zoom out":
-        app.size *= 0.9;
+        app.render.size *= 0.9;
         break;
       default:
         System.out.println("Unknown event: " + event);

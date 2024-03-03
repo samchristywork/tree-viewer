@@ -299,25 +299,25 @@ public class Node {
   }
 
   private void drawText(App app, Vec2 extents) {
-    double x = bounds.x + app.padding.x;
-    double y = bounds.y + 3 * extents.y / 4 + app.padding.y;
-    Draw.text(app, label, new Vec2(x, y), app.colorScheme.textColor);
+    double x = bounds.x + app.render.padding.x;
+    double y = bounds.y + 3 * extents.y / 4 + app.render.padding.y;
+    Draw.text(app, label, new Vec2(x, y), app.render.colorScheme.textColor);
   }
 
   private void drawRect(App app, Node n, Vec2 offset, Vec2 extents, Rect r) {
     Vec2 mousePos = new Vec2();
-    mousePos.x = app.mouse.x - app.globalOffset.x;
-    mousePos.y = app.mouse.y - app.globalOffset.y;
+    mousePos.x = app.mouse.x - app.render.globalOffset.x;
+    mousePos.y = app.mouse.y - app.render.globalOffset.y;
     if (r.contains(mousePos)) {
-      ColorScheme cs = app.colorScheme;
+      ColorScheme cs = app.render.colorScheme;
       Draw.rect(app, r, cs.nodeBorderColor, cs.nodeHoverColor, 1);
 
-      if (app.lmbClicked) {
+      if (app.render.lmbClicked) {
         app.selectedNode = n;
       }
 
-      if (app.rmbClicked) {
-        app.rmbClicked = false;
+      if (app.render.rmbClicked) {
+        app.render.rmbClicked = false;
         if (app.nodeToReparent == null) {
           app.nodeToReparent = n;
         } else {
@@ -325,20 +325,20 @@ public class Node {
         }
       }
     } else if (n == app.nodeToReparent) {
-      Draw.rect(app, r, app.colorScheme.nodeBorderColor,
-          app.colorScheme.nodeReparentColor, 1);
+      Draw.rect(app, r, app.render.colorScheme.nodeBorderColor,
+          app.render.colorScheme.nodeReparentColor, 1);
     } else if (n == app.selectedNode && n.checkAttr("status", "done")) {
-      Draw.rect(app, r, app.colorScheme.nodeBorderColor,
-          app.colorScheme.nodeSelectedCompletedColor, 1);
+      Draw.rect(app, r, app.render.colorScheme.nodeBorderColor,
+          app.render.colorScheme.nodeSelectedCompletedColor, 1);
     } else if (n == app.selectedNode) {
-      Draw.rect(app, r, app.colorScheme.nodeBorderColor,
-          app.colorScheme.nodeSelectedColor, 1);
+      Draw.rect(app, r, app.render.colorScheme.nodeBorderColor,
+          app.render.colorScheme.nodeSelectedColor, 1);
     } else if (n.checkAttr("status", "done")) {
-      Draw.rect(app, r, app.colorScheme.nodeBorderColor,
-          app.colorScheme.nodeCompletedColor, 1);
+      Draw.rect(app, r, app.render.colorScheme.nodeBorderColor,
+          app.render.colorScheme.nodeCompletedColor, 1);
     } else {
-      Draw.rect(app, r, app.colorScheme.nodeBorderColor,
-          app.colorScheme.nodeBackgroundColor, 1);
+      Draw.rect(app, r, app.render.colorScheme.nodeBorderColor,
+          app.render.colorScheme.nodeBackgroundColor, 1);
     }
   }
 
