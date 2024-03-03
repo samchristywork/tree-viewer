@@ -226,7 +226,7 @@ public class Event {
     app.render();
   }
 
-  protected static void zoom(App app) {
+  private static void zoom(App app) {
     app.render();
     app.globalOffset.x = -app.selectedNode.bounds.x;
     app.globalOffset.y = -app.selectedNode.bounds.y;

@@ -212,9 +212,7 @@ public class Node {
             @Override
             public void run() {
               addChild(name);
-              app.render();
-              Event.zoom(app);
-              app.render();
+              app.zoom();
             }
           });
         });
@@ -234,9 +232,7 @@ public class Node {
             @Override
             public void run() {
               label = name;
-              app.render();
-              Event.zoom(app);
-              app.render();
+              app.zoom();
             }
           });
         });

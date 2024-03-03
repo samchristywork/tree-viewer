@@ -284,6 +284,15 @@ public class App extends Application {
     }
   }
 
+  protected void zoom() {
+    render();
+    globalOffset.x = -selectedNode.bounds.x;
+    globalOffset.y = -selectedNode.bounds.y;
+    globalOffset.x += dimensions.x / 4;
+    globalOffset.y += dimensions.y / 4;
+    render();
+  }
+
   private String[] readLinesFromFile(String filename) {
     String[] lines = new String[0];
     try {
