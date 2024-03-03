@@ -1,16 +1,22 @@
 package org.tasker;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -293,6 +299,51 @@ public class App extends Application {
     render();
   }
 
+  protected boolean close() {
+    if (tree == null) {
+      return true;
+    }
+
+    try {
+      BufferedWriter writer = new BufferedWriter(
+          new FileWriter(workingDirectory + "/datastore"));
+      writer.write("darkMode=" + darkMode + "\n");
+      writer.write("showDone=" + showDone + "\n");
+      writer.write("globalOffsetX=" + globalOffset.x + "\n");
+      writer.write("globalOffsetY=" + globalOffset.y + "\n");
+      if (selectedNode != null) {
+        String selectedFQNN = selectedNode.fullyQualifiedName();
+        if (selectedFQNN != null) {
+          writer.write("selectedNodeFQNN=" + selectedFQNN + "\n");
+        }
+      }
+      if (tree.current != null && tree.current != tree.root) {
+        String currentFQNN = tree.current.fullyQualifiedName();
+        if (currentFQNN != null) {
+          writer.write("currentNodeFQNN=" + currentFQNN + "\n");
+        }
+      }
+      writer.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    if (tree.isModified()) {
+      Alert alert = new Alert(AlertType.CONFIRMATION,
+          "You have unsaved work. Quit anyway?",
+          ButtonType.YES, ButtonType.NO);
+      alert.setTitle("Confirmation Dialog");
+
+      Optional<ButtonType> result = alert.showAndWait();
+      if (result.isPresent() && result.get() == ButtonType.YES) {
+        return true;
+      }
+    } else {
+      return true;
+    }
+    return false;
+  }
+
   private String[] readLinesFromFile(String filename) {
     String[] lines = new String[0];
     try {
@@ -396,7 +447,7 @@ public class App extends Application {
       } else if (state == State.TREE_SELECTION) {
         switch (key.getCode()) {
           case ESCAPE:
-            if (Event.close(this)) {
+            if (close()) {
               System.exit(0);
             }
             break;
@@ -470,7 +521,7 @@ public class App extends Application {
     });
 
     stage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, (e) -> {
-      if (Event.close(this)) {
+      if (close()) {
         System.exit(0);
       } else {
         e.consume();

@@ -1,11 +1,8 @@
 package org.tasker;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Optional;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -82,7 +79,7 @@ public class Event {
         app.zoom();
         break;
       case "Exit":
-        if (close(app)) {
+        if (app.close()) {
           System.exit(0);
         }
         break;
@@ -224,51 +221,6 @@ public class Event {
     }
 
     app.render();
-  }
-
-  protected static boolean close(App app) {
-    if (app.tree == null) {
-      return true;
-    }
-
-    try {
-      BufferedWriter writer = new BufferedWriter(
-          new FileWriter(app.workingDirectory + "/datastore"));
-      writer.write("darkMode=" + app.darkMode + "\n");
-      writer.write("showDone=" + app.showDone + "\n");
-      writer.write("globalOffsetX=" + app.globalOffset.x + "\n");
-      writer.write("globalOffsetY=" + app.globalOffset.y + "\n");
-      if (app.selectedNode != null) {
-        String selectedFQNN = app.selectedNode.fullyQualifiedName();
-        if (selectedFQNN != null) {
-          writer.write("selectedNodeFQNN=" + selectedFQNN + "\n");
-        }
-      }
-      if (app.tree.current != null && app.tree.current != app.tree.root) {
-        String currentFQNN = app.tree.current.fullyQualifiedName();
-        if (currentFQNN != null) {
-          writer.write("currentNodeFQNN=" + currentFQNN + "\n");
-        }
-      }
-      writer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-
-    if (app.tree.isModified()) {
-      Alert alert = new Alert(AlertType.CONFIRMATION,
-          "You have unsaved work. Quit anyway?",
-          ButtonType.YES, ButtonType.NO);
-      alert.setTitle("Confirmation Dialog");
-
-      Optional<ButtonType> result = alert.showAndWait();
-      if (result.isPresent() && result.get() == ButtonType.YES) {
-        return true;
-      }
-    } else {
-      return true;
-    }
-    return false;
   }
 
   private static boolean caseInsensitiveCharMatch(char a, char b) {
