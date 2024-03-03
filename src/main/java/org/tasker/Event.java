@@ -72,14 +72,14 @@ public class Event {
         if (n != null) {
           app.selectedNode.addLink(n);
         }
-        zoom(app);
+        app.zoom();
       }
         break;
       case "Delete the selected node":
         Node parent = app.selectedNode.parent;
         app.tree.deleteNode(app.selectedNode);
         app.selectedNode = parent;
-        zoom(app);
+        app.zoom();
         break;
       case "Exit":
         if (close(app)) {
@@ -95,17 +95,17 @@ public class Event {
         if (n != null) {
           app.selectedNode = n;
         }
-        zoom(app);
+        app.zoom();
         break;
       case "Go to root":
         app.selectedNode = app.tree.root;
-        zoom(app);
+        app.zoom();
         break;
       case "Add a parent node":
         app.selectedNode = app.selectedNode.insert("new");
         app.selectedNode = app.selectedNode.parent;
         app.render();
-        zoom(app);
+        app.zoom();
         break;
       case "Mark a node as done":
         if (app.selectedNode.checkAttr("status", "done")) {
@@ -114,7 +114,7 @@ public class Event {
           app.selectedNode.putAttr("status", "done");
         }
         app.render();
-        zoom(app);
+        app.zoom();
         break;
       case "Move left":
         if (app.selectedNode != null) {
@@ -122,7 +122,7 @@ public class Event {
             app.selectedNode = app.selectedNode.parent;
           }
         }
-        zoom(app);
+        app.zoom();
         break;
       case "Move down":
         if (app.selectedNode != null) {
@@ -135,7 +135,7 @@ public class Event {
             }
           }
         }
-        zoom(app);
+        app.zoom();
         break;
       case "Move up":
         if (app.selectedNode != null) {
@@ -149,7 +149,7 @@ public class Event {
             }
           }
         }
-        zoom(app);
+        app.zoom();
         break;
       case "Move right":
         if (app.selectedNode != null) {
@@ -157,13 +157,13 @@ public class Event {
             app.selectedNode = app.selectedNode.children.get(0);
           }
         }
-        zoom(app);
+        app.zoom();
         break;
       case "Open node file":
         app.selectedNode.openFile(app);
         break;
       case "Pan to selected node":
-        zoom(app);
+        app.zoom();
         break;
       case "Rename the selected node":
         app.selectedNode.rename(app);
@@ -188,11 +188,11 @@ public class Event {
         break;
       case "Select random node":
         app.selectedNode = app.tree.randomNode();
-        zoom(app);
+        app.zoom();
         break;
       case "Set current node":
         app.tree.current = app.selectedNode;
-        zoom(app);
+        app.zoom();
         break;
       case "Show usage":
         usage();
@@ -224,14 +224,6 @@ public class Event {
     }
 
     app.render();
-  }
-
-  private static void zoom(App app) {
-    app.render();
-    app.globalOffset.x = -app.selectedNode.bounds.x;
-    app.globalOffset.y = -app.selectedNode.bounds.y;
-    app.globalOffset.x += app.dimensions.x / 4;
-    app.globalOffset.y += app.dimensions.y / 4;
   }
 
   protected static boolean close(App app) {
@@ -433,7 +425,7 @@ public class Event {
         } else if (index < nChildren + nLinks) {
           app.selectedNode = app.tree.findNode(app.selectedNode.links.get(index - nChildren));
         }
-        zoom(app);
+        app.zoom();
         app.render();
         break;
       default:
