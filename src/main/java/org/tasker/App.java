@@ -14,21 +14,18 @@ import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 public class App extends Application {
-  private ArrayList<String> vaults = new ArrayList<String>();
+  protected ArrayList<String> vaults = new ArrayList<String>();
   private Canvas canvas;
   private ColorScheme darkColorScheme = new ColorScheme();
   private ColorScheme lightColorScheme = new ColorScheme();
@@ -56,60 +53,13 @@ public class App extends Application {
   protected double lineHeight = 40;
   protected double size = 1;
   protected double spaceBetweenNodes = 50;
+  private Render render = new Render(this);
 
-  private void renderSubtree(Node n) {
-    Text text = new Text(n.label);
-    text.setFont(gc.getFont());
-
-    if (n == selectedNode || n.checkAttr("border", "true")) {
-      Rect r = n.getSubtreeRect();
-      r.x -= padding.x;
-      r.y -= padding.y;
-      r.w += padding.x * 2;
-      r.h += padding.y * 2;
-      Draw.rect(this, r, colorScheme.borderColor, colorScheme.borderBackground,
-          1);
-    }
-
-    for (Node child : n.children) {
-      if (!child.show) {
-        continue;
-      }
-
-      Vec2 a = n.getRightNode();
-      Vec2 b = child.getLeftNode();
-      Draw.circle(this, a, 3, colorScheme.nodeBorderColor,
-          colorScheme.bezierNodeColor, 1);
-      Draw.circle(this, b, 3, colorScheme.nodeBorderColor,
-          colorScheme.bezierNodeColor, 1);
-      Draw.bezier(this, a, new Vec2((a.x + b.x) / 2, a.y),
-          new Vec2((a.x + b.x) / 2, b.y), b,
-          colorScheme.bezierCurveColor, 2);
-
-      renderSubtree(child);
-    }
-
-    for (int i = 0; i < n.links.size(); i++) {
-      String link = n.links.get(i).replace("\t", "→");
-      Vec2 a = n.getRightNode();
-      Vec2 b = new Vec2(a.x + spaceBetweenNodes,
-          a.y + (i + n.children.size()) * lineHeight);
-      Draw.circle(this, a, 3, colorScheme.nodeBorderColor,
-          colorScheme.bezierNodeColor, 1);
-      Draw.circle(this, b, 3, colorScheme.nodeBorderColor,
-          colorScheme.bezierNodeColor, 1);
-      Draw.bezier(this, a, new Vec2((a.x + b.x) / 2, a.y),
-          new Vec2((a.x + b.x) / 2, b.y), b,
-          colorScheme.bezierCurveColor, 2);
-      b.x += padding.x;
-      b.y += padding.y / 2;
-      Draw.text(this, link, b, colorScheme.textColor);
-    }
-
-    n.draw(this);
+  protected void render() {
+    render.render();
   }
 
-  private void handleReparent() {
+  protected void handleReparent() {
     if (nodeToReparent == null) {
       return;
     }
@@ -139,7 +89,7 @@ public class App extends Application {
     targetNode = null;
   }
 
-  private void setColorScheme() {
+  protected void setColorScheme() {
     if (darkMode) {
       colorScheme = darkColorScheme;
     } else {
@@ -147,157 +97,13 @@ public class App extends Application {
     }
   }
 
-  private void renderBackground() {
-    gc.clearRect(0, 0, dimensions.x, dimensions.y);
-    gc.setFill(colorScheme.backgroundColor);
-    gc.fillRect(0, 0, dimensions.x, dimensions.y);
-  }
-
-  private void renderGrid() {
-    Grid.renderGrid(this, new Vec2(20, 20), new Vec2(100, 100),
-        colorScheme.gridColor1);
-    Grid.renderGrid(this, new Vec2(100, 100), new Vec2(100, 100),
-        colorScheme.gridColor2);
-  }
-
-  private void renderSubtree() {
-    tree.sort();
-    renderSubtree(tree.root);
-    lmbClicked = false;
-    rmbClicked = false;
-  }
-
-  private void renderStatusText() {
-    int fontSize = 16;
-
-    String statusline = String.format("Pan=(%.0f, %.0f)", globalOffset.x, globalOffset.y);
-    statusline += String.format(" Mouse=(%.0f, %.0f)", mouse.x, mouse.y);
-    statusline += String.format(" Dimensions=(%.0f, %.0f)", dimensions.x, dimensions.y);
-
-    gc.setFill(colorScheme.textColor);
-    gc.setFont(Font.font("Arial", fontSize));
-    gc.fillText(statusline, 10, dimensions.y - 10);
-  }
-
-  private void renderModifiedIndicator() {
-    double fontSize = gc.getFont().getSize();
-
-    if (tree.isModified()) {
-      gc.fillText("Modified", dimensions.x - 80, 10 + fontSize);
-    }
-  }
-
-  private void renderChildList() {
-    double fontSize = gc.getFont().getSize();
-
-    int i = 0;
-    for (Node child : selectedNode.children) {
-      double y = 10 + i * fontSize + fontSize;
-      gc.setFill(Color.GREY);
-      gc.fillText("" + (i + 1), 10, y);
-      gc.setFill(colorScheme.textColor);
-      gc.fillText("" + child.label, 30, y);
-      i++;
-    }
-
-    for (String link : selectedNode.links) {
-      double y = 10 + i * fontSize + fontSize;
-      gc.setFill(Color.GREY);
-      gc.fillText("" + (i + 1), 10, y);
-      gc.setFill(colorScheme.textColor);
-      gc.fillText("" + link.replace("\t", "→"), 30, y);
-      i++;
-    }
-  }
-
-  private void renderFilePreview() {
-    if (selectedNode == null) {
-      return;
-    }
-
-    String[] lines = readLinesFromFile(workingDirectory + "/files/" +
-        selectedNode.label + ".md");
-    double fontSize = gc.getFont().getSize();
-
-    if (lines.length != 0) {
-      gc.setFill(colorScheme.previewBackgroundColor);
-      gc.fillRect(dimensions.x - 320, 0, 320, dimensions.y);
-    }
-
-    double y = 2 * fontSize;
-    for (int i = 0; i < lines.length; i++) {
-      String line = lines[i].replace("[ ]", "☐").replace("[x]", "☑");
-      String firstTwo = line.length() > 2 ? line.substring(0, 2) : "";
-      if (firstTwo.equals("- ")) {
-        line = "• " + line.substring(2);
-      }
-      y += fontSize;
-      gc.setFill(colorScheme.textColor);
-
-      if (line.length() > 0 && line.charAt(0) == '#') {
-        y += fontSize;
-        gc.setFont(Font.font("Arial", 24));
-        gc.fillText(line, dimensions.x - 300, y);
-        gc.setFont(Font.font("Arial", 12));
-        y += fontSize / 2;
-      } else {
-        gc.fillText(line, dimensions.x - 300, y);
-      }
-    }
-  }
-
-  public void render() {
-    if (state == State.TREE_SELECTION) {
-      setColorScheme();
-      renderBackground();
-      renderGrid();
-      renderStatusText();
-
-      int i = 1;
-      for (String vault : vaults) {
-        double offset = 10 + i * 16;
-        gc.setFill(Color.GREY);
-        gc.fillText("" + i, 10, offset);
-        gc.setFill(colorScheme.textColor);
-        gc.fillText(vault, 30, offset);
-        i++;
-      }
-
-      double offset = 10 + i * 16;
-      gc.setFill(Color.GREY);
-      gc.fillText("n", 10, offset);
-      gc.setFill(colorScheme.textColor);
-      gc.fillText("New Vault", 30, offset);
-    } else if (state == State.TREE_VIEW) {
-      if (selectedNode == null) {
-        selectedNode = tree.root;
-      }
-
-      if (tree.current.isAncestor(selectedNode)) {
-        tree.current = selectedNode;
-      }
-
-      gc.setFont(Font.font("Arial", 12 * size));
-      setColorScheme();
-      handleReparent();
-      Layout.calculateLayout(this, tree.root);
-      renderBackground();
-      renderGrid();
-      renderSubtree();
-      renderStatusText();
-      renderModifiedIndicator();
-      renderChildList();
-      renderFilePreview();
-    }
-  }
-
   protected void zoom() {
-    render();
+    render.render();
     globalOffset.x = -selectedNode.bounds.x;
     globalOffset.y = -selectedNode.bounds.y;
     globalOffset.x += dimensions.x / 4;
     globalOffset.y += dimensions.y / 4;
-    render();
+    render.render();
   }
 
   protected boolean close() {
@@ -306,8 +112,7 @@ public class App extends Application {
     }
 
     try {
-      BufferedWriter writer = new BufferedWriter(
-          new FileWriter(workingDirectory + "/datastore"));
+      BufferedWriter writer = new BufferedWriter(new FileWriter(workingDirectory + "/datastore"));
       writer.write("darkMode=" + darkMode + "\n");
       writer.write("showDone=" + showDone + "\n");
       writer.write("globalOffsetX=" + globalOffset.x + "\n");
@@ -345,7 +150,7 @@ public class App extends Application {
     return false;
   }
 
-  private String[] readLinesFromFile(String filename) {
+  protected String[] readLinesFromFile(String filename) {
     String[] lines = new String[0];
     try {
       Path path = Paths.get(filename);
@@ -433,7 +238,7 @@ public class App extends Application {
               }
 
               readVaultsFile();
-              render();
+              render.render();
             }
           });
         });
@@ -487,14 +292,14 @@ public class App extends Application {
         rmbClicked = true;
       }
 
-      render();
+      render.render();
     });
 
     scene.addEventHandler(MouseEvent.MOUSE_MOVED, (m) -> {
       mouse.x = m.getX();
       mouse.y = m.getY();
 
-      render();
+      render.render();
     });
 
     scene.addEventHandler(MouseEvent.MOUSE_DRAGGED, (m) -> {
@@ -506,19 +311,19 @@ public class App extends Application {
       globalOffset.x += mouse.x - prevMouse.x;
       globalOffset.y += mouse.y - prevMouse.y;
 
-      render();
+      render.render();
     });
 
     scene.widthProperty().addListener((obs, oldVal, newVal) -> {
       dimensions.x = (double) newVal;
       canvas.setWidth(dimensions.x);
-      render();
+      render.render();
     });
 
     scene.heightProperty().addListener((obs, oldVal, newVal) -> {
       dimensions.y = (double) newVal;
       canvas.setHeight(dimensions.y);
-      render();
+      render.render();
     });
 
     stage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, (e) -> {
@@ -535,7 +340,7 @@ public class App extends Application {
     tree.readFromYMLFile(workingDirectory + "/nodes.yml");
     readDataStore();
     state = State.TREE_VIEW;
-    render();
+    render.render();
   }
 
   private void readVaultsFile() {
@@ -584,7 +389,7 @@ public class App extends Application {
     stage.setScene(scene);
     stage.show();
 
-    render();
+    render.render();
   }
 
   public static void main(String[] args) {
