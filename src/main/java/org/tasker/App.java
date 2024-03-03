@@ -27,11 +27,8 @@ import javafx.stage.WindowEvent;
 public class App extends Application {
   protected ArrayList<String> vaults = new ArrayList<String>();
   private Canvas canvas;
-  private ColorScheme darkColorScheme = new ColorScheme();
-  private ColorScheme lightColorScheme = new ColorScheme();
   private Event event = new Event();
   private Scene scene;
-  protected ColorScheme colorScheme;
   protected GraphicsContext gc;
   protected Node nodeToReparent = null;
   protected Node selectedNode = null;
@@ -42,17 +39,7 @@ public class App extends Application {
   protected String workingDirectory = "./";
   protected Tree tree = null;
   protected Vec2 dimensions = new Vec2(1600, 800);
-  protected Vec2 globalOffset = new Vec2(0, 0);
   protected Vec2 mouse = new Vec2(0, 0);
-  protected Vec2 padding = new Vec2(10, 6);
-  protected boolean compact = false;
-  protected boolean darkMode = true;
-  protected boolean lmbClicked = false;
-  protected boolean rmbClicked = false;
-  protected boolean showDone = false;
-  protected double lineHeight = 40;
-  protected double size = 1;
-  protected double spaceBetweenNodes = 50;
   private Render render = new Render(this);
 
   protected void render() {
@@ -90,19 +77,19 @@ public class App extends Application {
   }
 
   protected void setColorScheme() {
-    if (darkMode) {
-      colorScheme = darkColorScheme;
+    if (render.darkMode) {
+      render.colorScheme = render.darkColorScheme;
     } else {
-      colorScheme = lightColorScheme;
+      render.colorScheme = render.lightColorScheme;
     }
   }
 
   protected void zoom() {
     render.render();
-    globalOffset.x = -selectedNode.bounds.x;
-    globalOffset.y = -selectedNode.bounds.y;
-    globalOffset.x += dimensions.x / 4;
-    globalOffset.y += dimensions.y / 4;
+    render.globalOffset.x = -selectedNode.bounds.x;
+    render.globalOffset.y = -selectedNode.bounds.y;
+    render.globalOffset.x += dimensions.x / 4;
+    render.globalOffset.y += dimensions.y / 4;
     render.render();
   }
 
@@ -113,10 +100,10 @@ public class App extends Application {
 
     try {
       BufferedWriter writer = new BufferedWriter(new FileWriter(workingDirectory + "/datastore"));
-      writer.write("darkMode=" + darkMode + "\n");
-      writer.write("showDone=" + showDone + "\n");
-      writer.write("globalOffsetX=" + globalOffset.x + "\n");
-      writer.write("globalOffsetY=" + globalOffset.y + "\n");
+      writer.write("darkMode=" + render.darkMode + "\n");
+      writer.write("showDone=" + render.showDone + "\n");
+      writer.write("globalOffsetX=" + render.globalOffset.x + "\n");
+      writer.write("globalOffsetY=" + render.globalOffset.y + "\n");
       if (selectedNode != null) {
         String selectedFQNN = selectedNode.fullyQualifiedName();
         if (selectedFQNN != null) {
@@ -171,19 +158,19 @@ public class App extends Application {
       if (parts.length == 2) {
         switch (parts[0]) {
           case "darkMode":
-            darkMode = Boolean.parseBoolean(parts[1]);
+            render.darkMode = Boolean.parseBoolean(parts[1]);
             break;
           case "showDone":
-            showDone = Boolean.parseBoolean(parts[1]);
+            render.showDone = Boolean.parseBoolean(parts[1]);
             break;
           case "selectedNodeFQNN":
             selectedNode = tree.findNode(parts[1]);
             break;
           case "globalOffsetX":
-            globalOffset.x = Double.parseDouble(parts[1]);
+            render.globalOffset.x = Double.parseDouble(parts[1]);
             break;
           case "globalOffsetY":
-            globalOffset.y = Double.parseDouble(parts[1]);
+            render.globalOffset.y = Double.parseDouble(parts[1]);
             break;
           case "currentNodeFQNN":
             tree.current = tree.findNode(parts[1]);
@@ -285,11 +272,11 @@ public class App extends Application {
       mouse.y = m.getY();
 
       if (m.getButton().toString() == "PRIMARY") {
-        lmbClicked = true;
+        render.lmbClicked = true;
       }
 
       if (m.getButton().toString() == "SECONDARY") {
-        rmbClicked = true;
+        render.rmbClicked = true;
       }
 
       render.render();
@@ -308,8 +295,8 @@ public class App extends Application {
       mouse.x = m.getX();
       mouse.y = m.getY();
 
-      globalOffset.x += mouse.x - prevMouse.x;
-      globalOffset.y += mouse.y - prevMouse.y;
+      render.globalOffset.x += mouse.x - prevMouse.x;
+      render.globalOffset.y += mouse.y - prevMouse.y;
 
       render.render();
     });
@@ -374,8 +361,8 @@ public class App extends Application {
       System.out.println("Raw param: " + p);
     }
 
-    darkColorScheme.initializeDark();
-    lightColorScheme.initializeLight();
+    render.darkColorScheme.initializeDark();
+    render.lightColorScheme.initializeLight();
 
     readVaultsFile();
 
