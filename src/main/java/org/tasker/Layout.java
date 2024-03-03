@@ -11,7 +11,7 @@ public class Layout {
     n.show = true;
 
     Text text = new Text(n.label);
-    text.setFont(app.gc.getFont());
+    text.setFont(app.render.gc.getFont());
     n.extents.x = text.getLayoutBounds().getWidth();
     n.extents.y = text.getLayoutBounds().getHeight();
 
@@ -30,8 +30,8 @@ public class Layout {
     }
 
     if (n == app.nodeToReparent) {
-      n.bounds.x = -app.render.globalOffset.x + app.mouse.x - n.bounds.w / 2;
-      n.bounds.y = -app.render.globalOffset.y + app.mouse.y - n.bounds.h / 2;
+      n.bounds.x = -app.render.globalOffset.x + app.render.mouse.x - n.bounds.w / 2;
+      n.bounds.y = -app.render.globalOffset.y + app.render.mouse.y - n.bounds.h / 2;
     }
 
     if (n.children.size() == 0 && n.links.size() == 0) {

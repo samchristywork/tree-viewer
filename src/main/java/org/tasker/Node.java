@@ -306,8 +306,8 @@ public class Node {
 
   private void drawRect(App app, Node n, Vec2 offset, Vec2 extents, Rect r) {
     Vec2 mousePos = new Vec2();
-    mousePos.x = app.mouse.x - app.render.globalOffset.x;
-    mousePos.y = app.mouse.y - app.render.globalOffset.y;
+    mousePos.x = app.render.mouse.x - app.render.globalOffset.x;
+    mousePos.y = app.render.mouse.y - app.render.globalOffset.y;
     if (r.contains(mousePos)) {
       ColorScheme cs = app.render.colorScheme;
       Draw.rect(app, r, cs.nodeBorderColor, cs.nodeHoverColor, 1);

@@ -13,7 +13,6 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
@@ -29,7 +28,6 @@ public class App extends Application {
   private Event event = new Event();
   private Scene scene;
   protected ArrayList<String> vaults = new ArrayList<String>();
-  protected GraphicsContext gc;
   protected Node nodeToReparent = null;
   protected Node selectedNode = null;
   protected Node targetNode = null;
@@ -40,7 +38,6 @@ public class App extends Application {
   protected String workingDirectory = "./";
   protected Tree tree = null;
   protected Vec2 dimensions = new Vec2(1600, 800);
-  protected Vec2 mouse = new Vec2(0, 0);
 
   protected void render() {
     render.render();
@@ -268,8 +265,8 @@ public class App extends Application {
     });
 
     scene.addEventHandler(MouseEvent.MOUSE_CLICKED, (m) -> {
-      mouse.x = m.getX();
-      mouse.y = m.getY();
+      render.mouse.x = m.getX();
+      render.mouse.y = m.getY();
 
       if (m.getButton().toString() == "PRIMARY") {
         render.lmbClicked = true;
@@ -283,20 +280,20 @@ public class App extends Application {
     });
 
     scene.addEventHandler(MouseEvent.MOUSE_MOVED, (m) -> {
-      mouse.x = m.getX();
-      mouse.y = m.getY();
+      render.mouse.x = m.getX();
+      render.mouse.y = m.getY();
 
       render.render();
     });
 
     scene.addEventHandler(MouseEvent.MOUSE_DRAGGED, (m) -> {
-      Vec2 prevMouse = new Vec2(mouse.x, mouse.y);
+      Vec2 prevMouse = new Vec2(render.mouse.x, render.mouse.y);
 
-      mouse.x = m.getX();
-      mouse.y = m.getY();
+      render.mouse.x = m.getX();
+      render.mouse.y = m.getY();
 
-      render.globalOffset.x += mouse.x - prevMouse.x;
-      render.globalOffset.y += mouse.y - prevMouse.y;
+      render.globalOffset.x += render.mouse.x - prevMouse.x;
+      render.globalOffset.y += render.mouse.y - prevMouse.y;
 
       render.render();
     });
@@ -369,7 +366,7 @@ public class App extends Application {
     canvas = new Canvas(dimensions.x, dimensions.y);
     scene = new Scene(new StackPane(canvas), dimensions.x, dimensions.y);
     stage.setTitle("Tasker");
-    gc = canvas.getGraphicsContext2D();
+    render.gc = canvas.getGraphicsContext2D();
 
     addListeners(scene, canvas);
 
