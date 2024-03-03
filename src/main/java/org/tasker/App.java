@@ -32,6 +32,7 @@ public class App extends Application {
   private Canvas canvas;
   private ColorScheme darkColorScheme = new ColorScheme();
   private ColorScheme lightColorScheme = new ColorScheme();
+  private Event event = new Event();
   private Scene scene;
   protected ColorScheme colorScheme;
   protected GraphicsContext gc;
@@ -443,7 +444,7 @@ public class App extends Application {
   private void addListeners(Scene scene, Canvas canvas) {
     scene.addEventHandler(KeyEvent.KEY_PRESSED, (key) -> {
       if (state == State.TREE_VIEW) {
-        Event.keyPressHandler(this, key);
+        event.keyPressHandler(this, key);
       } else if (state == State.TREE_SELECTION) {
         switch (key.getCode()) {
           case ESCAPE:

@@ -19,9 +19,9 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 
 public class Event {
-  private static String sep = "→";
+  private String sep = "→";
 
-  private static Object bindings[][] = {
+  private Object bindings[][] = {
       { "0", KeyCode.DIGIT0, "Go to root" },
       { "1-9", null, "Jump to the nth child of the current node" },
       { "Add", KeyCode.ADD, "Zoom in" },
@@ -53,7 +53,7 @@ public class Event {
       { "", null, "Toggle dark mode" },
   };
 
-  private static void handleEvent(App app, String event) {
+  private void handleEvent(App app, String event) {
     System.out.println("Event: " + event);
 
     switch (event) {
@@ -223,11 +223,11 @@ public class Event {
     app.render();
   }
 
-  private static boolean caseInsensitiveCharMatch(char a, char b) {
+  private boolean caseInsensitiveCharMatch(char a, char b) {
     return Character.toLowerCase(a) == Character.toLowerCase(b);
   }
 
-  private static boolean fuzzyMatchChoices(String choice, String newV) {
+  private boolean fuzzyMatchChoices(String choice, String newV) {
     if (newV.length() == 0) {
       return true;
     }
@@ -248,11 +248,11 @@ public class Event {
     return false;
   }
 
-  private static boolean exactMatchChoices(String choice, String newV) {
+  private boolean exactMatchChoices(String choice, String newV) {
     return choice.toLowerCase().contains(newV.toLowerCase());
   }
 
-  private static void updateChoices(TextField textField, VBox availableChoices,
+  private void updateChoices(TextField textField, VBox availableChoices,
       String[] choices, String newV) {
     ArrayList<Label> exactMatches = new ArrayList<>();
     ArrayList<Label> fuzzyMatches = new ArrayList<>();
@@ -278,7 +278,7 @@ public class Event {
     }
   }
 
-  private static String showDialog(String[] choices, String title) {
+  private String showDialog(String[] choices, String title) {
     Dialog<String> dialog = new Dialog<>();
     dialog.setTitle(title);
 
@@ -334,7 +334,7 @@ public class Event {
     return textField.getText().replace(sep, "\t");
   }
 
-  public static void usage() {
+  protected void usage() {
     String content = "";
     for (Object[] key : bindings) {
       if (key[0] != "") {
@@ -349,7 +349,7 @@ public class Event {
     alert.showAndWait();
   }
 
-  protected static void keyPressHandler(App app, KeyEvent key) {
+  protected void keyPressHandler(App app, KeyEvent key) {
     if (app.tree == null) {
       return;
     }
