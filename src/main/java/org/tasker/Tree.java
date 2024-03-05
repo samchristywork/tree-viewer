@@ -119,6 +119,7 @@ public class Tree {
       writer.close();
     }
 
+    markAllNodesNotModified();
     state = serializeYML();
     fullyQualifiedState = serialize();
   }
@@ -183,6 +184,10 @@ public class Tree {
 
     state = serializeYML();
     fullyQualifiedState = serialize();
+  }
+
+  protected void markAllNodesNotModified() {
+    root.markAllNodesNotModified();
   }
 
   protected Node randomNode() {

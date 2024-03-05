@@ -287,6 +287,13 @@ public class Node {
     return parent.isAncestor(node);
   }
 
+  protected void markAllNodesNotModified() {
+    modified = false;
+    for (Node child : children) {
+      child.markAllNodesNotModified();
+    }
+  }
+
   protected Node findNode(String[] fqnn) {
     if (fqnn.length == 0) {
       return null;
