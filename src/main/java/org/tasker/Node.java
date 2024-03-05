@@ -8,6 +8,8 @@ import java.util.HashMap;
 import javafx.application.Platform;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 
 public class Node {
   private HashMap<String, String> attributes = new HashMap<String, String>();
@@ -404,6 +406,19 @@ public class Node {
       }
       if (r.y + r.h > y + h) {
         h = r.y + r.h - y;
+      }
+    }
+
+    for (String link : links) {
+      h += bounds.h + 10;
+
+      Text text = new Text(link);
+      text.setFont(Font.font("Arial", 16)); // TODO
+      Vec2 extents = new Vec2(text.getLayoutBounds().getWidth(),
+          text.getLayoutBounds().getHeight());
+
+      if (extents.x + 100 > w) {
+        w = extents.x + 100;
       }
     }
 
