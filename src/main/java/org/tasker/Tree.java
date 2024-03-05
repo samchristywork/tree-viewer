@@ -204,6 +204,10 @@ public class Tree {
     return null;
   }
 
+  protected int countNodes() {
+    return root.countNodes();
+  }
+
   protected void deleteNode(Node n) {
     if (n.parent != null) {
       n.parent.children.remove(n);

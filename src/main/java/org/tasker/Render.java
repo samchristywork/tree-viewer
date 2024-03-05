@@ -110,16 +110,27 @@ public class Render {
   private void statusText() {
     int fontSize = 16;
 
-    String statusline =
-        String.format("Pan=(%.0f, %.0f)", globalOffset.x, globalOffset.y);
-    statusline +=
-        String.format(" Mouse=(%.0f, %.0f)", mouse.x, mouse.y);
-    statusline += String.format(" Dimensions=(%.0f, %.0f)", app.dimensions.x,
-                                app.dimensions.y);
+    Vec2 go = globalOffset;
+    Vec2 dim = app.dimensions;
+    String statusline[];
+    statusline = new String[2];
+    statusline[0] = "";
+    statusline[1] = "";
 
-    gc.setFill(colorScheme.textColor);
-    gc.setFont(Font.font("Arial", fontSize));
-    gc.fillText(statusline, 10, app.dimensions.y - 10);
+    statusline[0] += String.format("Pan=(%.0f, %.0f)", go.x, go.y);
+    statusline[0] += String.format(" Mouse=(%.0f, %.0f)", mouse.x, mouse.y);
+    statusline[0] += String.format(" Dimensions=(%.0f, %.0f)", dim.x, dim.y);
+
+    if (app.tree != null) {
+      statusline[1] += String.format("%d Nodes", app.tree.countNodes());
+    }
+
+    for (int i = 0; i < statusline.length; i++) {
+      int yoff = i * 16;
+      gc.setFill(colorScheme.textColor);
+      gc.setFont(Font.font("Arial", fontSize));
+      gc.fillText(statusline[i], 10, app.dimensions.y - 10 - yoff);
+    }
   }
 
   private void modifiedIndicator() {

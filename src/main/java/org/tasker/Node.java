@@ -98,6 +98,14 @@ public class Node {
     }
   }
 
+  protected int countNodes() {
+    int count = 1;
+    for (Node child : children) {
+      count += child.countNodes();
+    }
+    return count;
+  }
+
   protected boolean checkAttr(String key, String value) {
     return attributes.containsKey(key) && attributes.get(key).equals(value);
   }
