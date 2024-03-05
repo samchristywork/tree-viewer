@@ -15,7 +15,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
 public class Tree {
-  protected Node root = new Node("root", null);
+  protected Node root = new Node("root", null, false);
   protected Node current = root;
   private String state = "";
   private String fullyQualifiedState = "";
@@ -164,10 +164,10 @@ public class Tree {
       String label = decodeString(parts[0]).strip().replace("\"", "");
       int d = (line.length() - line.stripLeading().length()) / 2;
       if (d == depth) {
-        n.children.add(new Node(label, n, attributes));
+        n.children.add(new Node(label, n, attributes, false));
       } else if (d == depth + 1) {
         n = n.children.get(n.children.size() - 1);
-        n.children.add(new Node(label, n, attributes));
+        n.children.add(new Node(label, n, attributes, false));
         depth++;
       } else if (d < depth) {
         for (int i = 0; i < depth - d; i++) {
@@ -176,7 +176,7 @@ public class Tree {
         if (n == null) {
           n = root;
         }
-        n.children.add(new Node(label, n, attributes));
+        n.children.add(new Node(label, n, attributes, false));
         depth = d;
       }
     }

@@ -20,15 +20,18 @@ public class Node {
   protected String label;
   protected Vec2 extents = new Vec2(0, 0);
   protected boolean show = true;
+  protected boolean modified;
 
-  protected Node(String label, Node parent) {
+  protected Node(String label, Node parent, boolean modified) {
     this.label = label;
     this.parent = parent;
+    this.modified = modified;
   }
 
-  protected Node(String label, Node parent, String attributes) {
+  protected Node(String label, Node parent, String attributes, boolean modified) {
     this.label = label;
     this.parent = parent;
+    this.modified = modified;
 
     if (attributes.equals("")) {
       return;
@@ -41,8 +44,9 @@ public class Node {
     }
   }
 
-  protected Node(String label) {
+  protected Node(String label, boolean modified) {
     this.label = label;
+    this.modified = modified;
   }
 
   private String encodeString(String s) {
@@ -115,7 +119,7 @@ public class Node {
   }
 
   protected Node addChild(String label) {
-    Node child = new Node(label, this);
+    Node child = new Node(label, this, true);
     children.add(child);
 
     return child;
@@ -143,7 +147,7 @@ public class Node {
   }
 
   protected Node insert(String label) {
-    Node n = new Node(this.label, this);
+    Node n = new Node(this.label, this, true);
     n.children = this.children;
     children = new ArrayList<Node>();
     children.add(n);
@@ -236,6 +240,7 @@ public class Node {
             public void run() {
               label = name;
               app.zoom();
+              modified = true;
             }
           });
         });
@@ -366,6 +371,10 @@ public class Node {
 
     if (n.checkAttr("status", "done")) {
       colors.add(cs.nodeCompletedColor);
+    }
+
+    if (n.modified) {
+      colors.add(cs.modifiedColor);
     }
 
     if (colors.size() == 0) {

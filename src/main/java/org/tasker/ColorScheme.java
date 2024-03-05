@@ -10,6 +10,7 @@ public class ColorScheme {
   protected Color borderColor;
   protected Color gridColor1;
   protected Color gridColor2;
+  protected Color modifiedColor;
   protected Color nodeBackgroundColor;
   protected Color nodeBorderColor;
   protected Color nodeCompletedColor;
@@ -27,6 +28,7 @@ public class ColorScheme {
     borderColor = new Color(0.5, 0.5, 0.5, 1);
     gridColor1 = new Color(0.1, 0.1, 0.1, 1);
     gridColor2 = new Color(0.2, 0.2, 0.2, 1);
+    modifiedColor = new Color(0.5, 0.5, 0.7, 1);
     nodeBackgroundColor = Color.BLACK;
     nodeBorderColor = Color.GREY;
     nodeCompletedColor = new Color(0.2, 0.4, 0.2, 1);
@@ -45,6 +47,7 @@ public class ColorScheme {
     borderColor = Color.DARKGREY;
     gridColor1 = new Color(0.9, 0.9, 0.9, 1);
     gridColor2 = new Color(0.8, 0.8, 0.8, 1);
+    modifiedColor = new Color(0.5, 0.5, 0.7, 1);
     nodeBackgroundColor = Color.WHITE;
     nodeBorderColor = Color.DARKGREY;
     nodeCompletedColor = new Color(0.8, 0.9, 0.8, 1);
