@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import javafx.application.Platform;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.paint.Color;
 
 public class Node {
   private HashMap<String, String> attributes = new HashMap<String, String>();
@@ -302,6 +303,27 @@ public class Node {
     double x = bounds.x + app.render.padding.x;
     double y = bounds.y + 3 * extents.y / 4 + app.render.padding.y;
     Draw.text(app, label, new Vec2(x, y), app.render.colorScheme.textColor);
+  }
+
+  private Color combine(ArrayList<Color> colors) {
+    double r = 0;
+    double g = 0;
+    double b = 0;
+    double a = 0;
+
+    for (Color c : colors) {
+      r += c.getRed();
+      g += c.getGreen();
+      b += c.getBlue();
+      a += c.getOpacity();
+    }
+
+    r /= colors.size();
+    g /= colors.size();
+    b /= colors.size();
+    a /= colors.size();
+
+    return new Color(r, g, b, a);
   }
 
   private void drawRect(App app, Node n, Vec2 offset, Vec2 extents, Rect r) {
