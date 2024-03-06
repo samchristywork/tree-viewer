@@ -342,12 +342,22 @@ public class App extends Application {
     }
   }
 
+  private void usage() {
+    System.out.println("Usage: tasker <vault>");
+  }
+
   @Override
   public void start(Stage stage) {
     this.stage = stage;
     Parameters params = getParameters();
     List<String> unnamedParams = params.getUnnamed();
     List<String> rawParams = params.getRaw();
+
+    if (unnamedParams.size() != 1) {
+      usage();
+      return;
+    }
+
     System.out.println("Number of unnamed params: " + unnamedParams.size());
     for (String p : unnamedParams) {
       System.out.println("Unnamed param: " + p);
