@@ -348,7 +348,7 @@ public class Node {
     return new Color(r, g, b, a);
   }
 
-  private void drawRect(App app, Node n, Vec2 offset, Vec2 extents, Rect r) {
+  private void drawRect(App app, Vec2 offset, Vec2 extents, Rect r) {
     Vec2 mousePos = new Vec2();
     Render render = app.render;
     mousePos.x = render.mouse.x - render.globalOffset.x;
@@ -356,15 +356,15 @@ public class Node {
 
     if (r.contains(mousePos)) {
       if (render.mouse.lmbClicked) {
-        app.selectedNode = n;
+        app.selectedNode = this;
       }
 
       if (render.mouse.rmbClicked) {
         render.mouse.rmbClicked = false;
         if (app.nodeToReparent == null) {
-          app.nodeToReparent = n;
+          app.nodeToReparent = this;
         } else {
-          app.targetNode = n;
+          app.targetNode = this;
         }
       }
     }
@@ -376,19 +376,19 @@ public class Node {
       colors.add(cs.nodeHoverColor);
     }
 
-    if (n == app.nodeToReparent) {
+    if (this == app.nodeToReparent) {
       colors.add(cs.nodeReparentColor);
     }
 
-    if (n == app.selectedNode) {
+    if (this == app.selectedNode) {
       colors.add(cs.nodeSelectedColor);
     }
 
-    if (n.checkAttr("status", "done")) {
+    if (this.checkAttr("status", "done")) {
       colors.add(cs.nodeCompletedColor);
     }
 
-    if (n.modified) {
+    if (this.modified) {
       colors.add(cs.modifiedColor);
     }
 
@@ -450,7 +450,7 @@ public class Node {
   }
 
   protected void draw(App app) {
-    drawRect(app, this, new Vec2(bounds.x, bounds.y), extents, bounds);
+    drawRect(app, new Vec2(bounds.x, bounds.y), extents, bounds);
     drawText(app, extents);
   }
 }
