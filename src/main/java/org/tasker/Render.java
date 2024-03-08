@@ -190,6 +190,7 @@ public class Render {
 
       if (line.length() > 0 && line.charAt(0) == '#') {
         y += fontSize;
+        gc.setFill(colorScheme.headingColor);
         gc.setFont(Font.font("Arial", 24));
         gc.fillText(line, app.dimensions.x - 300, y);
         gc.setFont(Font.font("Arial", 12));
