@@ -33,7 +33,7 @@ public class Render {
       r.y -= padding.y;
       r.w += padding.x * 2;
       r.h += padding.y * 2;
-      Draw.rect(app, r, colorScheme.borderColor, colorScheme.borderBackground,
+      Draw.rect(app, r, colorScheme.border, colorScheme.borderBackground,
                 1);
     }
 
@@ -44,13 +44,13 @@ public class Render {
 
       Vec2 a = n.getRightNode();
       Vec2 b = child.getLeftNode();
-      Draw.circle(app, a, 3, colorScheme.nodeBorderColor,
-                  colorScheme.bezierNodeColor, 1);
-      Draw.circle(app, b, 3, colorScheme.nodeBorderColor,
-                  colorScheme.bezierNodeColor, 1);
+      Draw.circle(app, a, 3, colorScheme.nodeBorder,
+                  colorScheme.bezierNode, 1);
+      Draw.circle(app, b, 3, colorScheme.nodeBorder,
+                  colorScheme.bezierNode, 1);
       Draw.bezier(app, a, new Vec2((a.x + b.x) / 2, a.y),
                   new Vec2((a.x + b.x) / 2, b.y), b,
-                  colorScheme.bezierCurveColor, 2);
+                  colorScheme.bezierCurve, 2);
 
       subtree(child);
     }
@@ -60,16 +60,16 @@ public class Render {
       Vec2 a = n.getRightNode();
       Vec2 b = new Vec2(a.x + spaceBetweenNodes,
                         a.y + (i + n.children.size()) * lineHeight);
-      Draw.circle(app, a, 3, colorScheme.nodeBorderColor,
-                  colorScheme.bezierNodeColor, 1);
-      Draw.circle(app, b, 3, colorScheme.nodeBorderColor,
-                  colorScheme.bezierNodeColor, 1);
+      Draw.circle(app, a, 3, colorScheme.nodeBorder,
+                  colorScheme.bezierNode, 1);
+      Draw.circle(app, b, 3, colorScheme.nodeBorder,
+                  colorScheme.bezierNode, 1);
       Draw.bezier(app, a, new Vec2((a.x + b.x) / 2, a.y),
                   new Vec2((a.x + b.x) / 2, b.y), b,
-                  colorScheme.bezierCurveColor, 2);
+                  colorScheme.bezierCurve, 2);
       b.x += padding.x;
       b.y += padding.y / 2;
-      Draw.text(app, link, b, colorScheme.textColor);
+      Draw.text(app, link, b, colorScheme.text);
     }
 
     n.draw(app);
@@ -77,7 +77,7 @@ public class Render {
 
   private void background() {
     gc.clearRect(0, 0, app.dimensions.x, app.dimensions.y);
-    gc.setFill(colorScheme.backgroundColor);
+    gc.setFill(colorScheme.background);
     gc.fillRect(0, 0, app.dimensions.x, app.dimensions.y);
   }
 
@@ -96,8 +96,8 @@ public class Render {
   }
 
   private void grids() {
-    grid(new Vec2(20, 20), new Vec2(100, 100), colorScheme.gridColor1);
-    grid(new Vec2(100, 100), new Vec2(100, 100), colorScheme.gridColor2);
+    grid(new Vec2(20, 20), new Vec2(100, 100), colorScheme.grid1);
+    grid(new Vec2(100, 100), new Vec2(100, 100), colorScheme.grid2);
   }
 
   private void subtree() {
@@ -127,7 +127,7 @@ public class Render {
 
     for (int i = 0; i < statusline.length; i++) {
       int yoff = i * 16;
-      gc.setFill(colorScheme.textColor);
+      gc.setFill(colorScheme.text);
       gc.setFont(Font.font("Arial", fontSize));
       gc.fillText(statusline[i], 10, app.dimensions.y - 10 - yoff);
     }
@@ -149,7 +149,7 @@ public class Render {
       double y = 10 + i * fontSize + fontSize;
       gc.setFill(Color.GREY);
       gc.fillText("" + (i + 1), 10, y);
-      gc.setFill(colorScheme.textColor);
+      gc.setFill(colorScheme.text);
       gc.fillText("" + child.label, 30, y);
       i++;
     }
@@ -158,7 +158,7 @@ public class Render {
       double y = 10 + i * fontSize + fontSize;
       gc.setFill(Color.GREY);
       gc.fillText("" + (i + 1), 10, y);
-      gc.setFill(colorScheme.textColor);
+      gc.setFill(colorScheme.text);
       gc.fillText("" + link.replace("\t", "→"), 30, y);
       i++;
     }
@@ -174,7 +174,7 @@ public class Render {
     double fontSize = gc.getFont().getSize();
 
     if (lines.length != 0) {
-      gc.setFill(colorScheme.previewBackgroundColor);
+      gc.setFill(colorScheme.previewBackground);
       gc.fillRect(app.dimensions.x - 320, 0, 320, app.dimensions.y);
     }
 
@@ -186,11 +186,11 @@ public class Render {
         line = "• " + line.substring(2);
       }
       y += fontSize;
-      gc.setFill(colorScheme.textColor);
+      gc.setFill(colorScheme.text);
 
       if (line.length() > 0 && line.charAt(0) == '#') {
         y += fontSize;
-        gc.setFill(colorScheme.headingColor);
+        gc.setFill(colorScheme.heading);
         gc.setFont(Font.font("Arial", 24));
         gc.fillText(line, app.dimensions.x - 300, y);
         gc.setFont(Font.font("Arial", 12));
@@ -213,7 +213,7 @@ public class Render {
         double offset = 10 + i * 16;
         gc.setFill(Color.GREY);
         gc.fillText("" + i, 10, offset);
-        gc.setFill(colorScheme.textColor);
+        gc.setFill(colorScheme.text);
         gc.fillText(vault, 30, offset);
         i++;
       }
@@ -221,7 +221,7 @@ public class Render {
       double offset = 10 + i * 16;
       gc.setFill(Color.GREY);
       gc.fillText("n", 10, offset);
-      gc.setFill(colorScheme.textColor);
+      gc.setFill(colorScheme.text);
       gc.fillText("New Vault", 30, offset);
     } else if (app.state == State.TREE_VIEW) {
       if (app.selectedNode == null) {

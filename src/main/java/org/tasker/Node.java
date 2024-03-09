@@ -324,7 +324,7 @@ public class Node {
   private void drawText(App app, Vec2 extents) {
     double x = bounds.x + app.render.padding.x;
     double y = bounds.y + 3 * extents.y / 4 + app.render.padding.y;
-    Draw.text(app, label, new Vec2(x, y), app.render.colorScheme.textColor);
+    Draw.text(app, label, new Vec2(x, y), app.render.colorScheme.text);
   }
 
   private Color combine(ArrayList<Color> colors) {
@@ -373,29 +373,29 @@ public class Node {
 
     ColorScheme cs = render.colorScheme;
     if (r.contains(mousePos)) {
-      colors.add(cs.nodeHoverColor);
+      colors.add(cs.nodeHover);
     }
 
     if (this == app.nodeToReparent) {
-      colors.add(cs.nodeReparentColor);
+      colors.add(cs.nodeReparent);
     }
 
     if (this == app.selectedNode) {
-      colors.add(cs.nodeSelectedColor);
+      colors.add(cs.nodeSelected);
     }
 
     if (this.checkAttr("status", "done")) {
-      colors.add(cs.nodeCompletedColor);
+      colors.add(cs.nodeCompleted);
     }
 
     if (this.modified) {
-      colors.add(cs.modifiedColor);
+      colors.add(cs.modified);
     }
 
     if (colors.size() == 0) {
-      Draw.rect(app, r, cs.nodeBorderColor, cs.nodeBackgroundColor, 1);
+      Draw.rect(app, r, cs.nodeBorder, cs.nodeBackground, 1);
     } else {
-      Draw.rect(app, r, cs.nodeBorderColor, combine(colors), 1);
+      Draw.rect(app, r, cs.nodeBorder, combine(colors), 1);
     }
   }
 
