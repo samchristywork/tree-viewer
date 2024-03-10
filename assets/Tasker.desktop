@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+TryExec=tree-viewer
+Exec=tree-viewer
+Icon=Tasker
+Terminal=false
+
+Name=Tasker
+GenericName=Tasker
+StartupNotify=true
+StartupWMClass=Tasker
