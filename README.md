@@ -3,8 +3,21 @@
 ## Overview
 
 <p align="center">
-  <img src="./assets/screenshot.png" width=500 />
+  <img src="./assets/screenshot-light.png" />
 </p>
+
+<p align="center">
+  <img src="./assets/screenshot-dark.png" />
+</p>
+
+The tree is a remarkably useful data structure. Trees can be used to represent
+tasks, inventories, chains of responsibility, or anything else that is
+fundamentally hierarchical in nature.
+
+This program serves as a friendly interface to create, edit, and view trees.
+
+The program is implemented in Java, built with Maven, and uses the JavaFX
+library for graphics.
 
 ## Features
 
@@ -22,6 +35,9 @@
 ## Dependencies
 
 ```
+java
+make (optional)
+maven
 ```
 
 ## License
