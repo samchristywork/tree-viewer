@@ -27,7 +27,6 @@ public class App extends Application {
   private Canvas canvas;
   private Event event = new Event();
   private Scene scene;
-  protected ArrayList<String> vaults = new ArrayList<String>();
   protected Node nodeToReparent = null;
   protected Node selectedNode = null;
   protected Node targetNode = null;
@@ -35,9 +34,10 @@ public class App extends Application {
   protected Stage stage;
   protected State state = State.TREE_SELECTION;
   protected String editorCommand = "gedit";
-  protected String workingDirectory = "./";
+  protected String workingDirectory = "./root/";
   protected Tree tree = null;
   protected Vec2 dimensions = new Vec2(1600, 800);
+  protected ArrayList<String> treeNames = new ArrayList<String>();
 
   protected void render() {
     render.render();
@@ -184,44 +184,40 @@ public class App extends Application {
     Platform.runLater(new Runnable() {
       @Override
       public void run() {
-        TextInputDialog dialog = new TextInputDialog("MyVault");
-        dialog.setTitle("New Vault");
+        TextInputDialog dialog = new TextInputDialog("MyTree");
+        dialog.setTitle("New Tree");
         dialog.setContentText("Name:");
         dialog.showAndWait().ifPresent(name -> {
           Platform.runLater(new Runnable() {
             @Override
             public void run() {
-              vaults.add(name);
-              workingDirectory = name;
+              try {
+                Files.createDirectories(Paths.get(workingDirectory + "/" + name));
+              } catch (IOException e) {
+                e.printStackTrace();
+              }
 
               try {
-                Files.createDirectories(Paths.get(workingDirectory + "/files"));
+                Files.createDirectories(Paths.get(workingDirectory + "/" + name + "/files"));
               } catch (IOException e) {
                 e.printStackTrace();
               }
 
               try {
                 Files.createDirectories(
-                    Paths.get(workingDirectory + "/backups"));
+                    Paths.get(workingDirectory + "/" + name + "/backups"));
               } catch (IOException e) {
                 e.printStackTrace();
               }
 
               try {
-                if (!Files.exists(Paths.get(workingDirectory + "/nodes.yml"))) {
-                  Files.createFile(Paths.get(workingDirectory + "/nodes.yml"));
+                if (!Files.exists(Paths.get(workingDirectory + "/" + name + "/nodes.yml"))) {
+                  Files.createFile(Paths.get(workingDirectory + "/" + name + "/nodes.yml"));
                 }
               } catch (IOException e) {
                 e.printStackTrace();
               }
 
-              try {
-                Files.write(Paths.get("/home/sam/.vaults.txt"), vaults);
-              } catch (IOException e) {
-                e.printStackTrace();
-              }
-
-              readVaultsFile();
               render.render();
             }
           });
@@ -251,7 +247,7 @@ public class App extends Application {
           case DIGIT8:
           case DIGIT9:
             int i = key.getCode().ordinal() - 25;
-            workingDirectory = vaults.get(i);
+            workingDirectory += treeNames.get(i);
             setup();
             break;
           case N:
@@ -327,21 +323,6 @@ public class App extends Application {
     render.render();
   }
 
-  private void readVaultsFile() {
-    if (!Files.exists(Paths.get("/home/sam/.vaults.txt"))) {
-      try {
-        Files.createFile(Paths.get("/home/sam/.vaults.txt"));
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    }
-
-    vaults.clear();
-    for (String line : readLinesFromFile("/home/sam/.vaults.txt")) {
-      vaults.add(line);
-    }
-  }
-
   private void usage() {
     System.out.println("Usage: tasker <vault>");
   }
@@ -371,7 +352,9 @@ public class App extends Application {
     render.darkColorScheme.initializeDark();
     render.lightColorScheme.initializeLight();
 
-    readVaultsFile();
+    for (String name : Paths.get(workingDirectory).toFile().list()) {
+      treeNames.add(name);
+    }
 
     canvas = new Canvas(dimensions.x, dimensions.y);
     scene = new Scene(new StackPane(canvas), dimensions.x, dimensions.y);

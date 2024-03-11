@@ -209,7 +209,7 @@ public class Render {
       statusText();
 
       int i = 1;
-      for (String vault : app.vaults) {
+      for (String vault : app.treeNames) {
         double offset = 10 + i * 16;
         gc.setFill(Color.GREY);
         gc.fillText("" + i, 10, offset);
