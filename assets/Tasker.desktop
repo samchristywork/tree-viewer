@@ -4,7 +4,6 @@ TryExec=tree-viewer
 Exec=tree-viewer
 Icon=Tasker
 Terminal=false
-
 Name=Tasker
 GenericName=Tasker
 StartupNotify=true
