@@ -44,6 +44,11 @@ To run the program, use `make run`.
 
 To build a standalone Java JAR file, use `make build`.
 
+### Key Bindings
+
+Use HJKL or the mouse to move around. Press `Escape` or `Q` to exit. Other key
+bindings can be seen by pressing `U`.
+
 ## Dependencies
 
 ```
