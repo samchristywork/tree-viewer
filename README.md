@@ -34,14 +34,15 @@ library for graphics.
 
 ## Setup
 
+Install the Java Runtime Environment (tested with openJDK 17).
+
+Install Maven (tested with Maven 3.8.7).
+
 ## Usage
 
-```
-```
+To run the program, use `make run`.
 
-## Examples
-
-## Limitations
+To build a standalone Java JAR file, use `make build`.
 
 ## Dependencies
 
